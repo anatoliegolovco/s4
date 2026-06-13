@@ -252,6 +252,14 @@ co-simulated; the real Z84C00 only lives on the fabricated PCB.
 
 ### 5.4 Optional reference / cross-check tooling (from prior project work)
 
+> **Owner directive (2026-06-13):** execution is watched **inside the electronics
+> simulator** — real components wired in SimulIDE, the real ROM in the ROM
+> component, and a custom **monitor component** rendering the circuit's RGB+sync
+> in a window. The software-emulator track below is **dropped** as a viewing tool
+> (kept only as an optional headless CRC/ZEXDOC cross-check). Real-time monitor is
+> pursued via **mixed-level simulation** — see
+> [`ledger/tooling/execution-visualization-monitor.md`](../ledger/tooling/execution-visualization-monitor.md).
+
 - **Software emulator** (separate track): C23 → WASM Z80 core + passive video
   renderer; validated headless via **ZEXDOC/ZEXALL** (Frank Cringle, CRC),
   **FUSE test suite** (`tests.in`/`tests.expected`, per-instruction T-states &

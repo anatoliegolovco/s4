@@ -14,3 +14,4 @@ KiCad↔SimulIDE bridge, and how the LLM automates them through text.
 | --- | --- | --- | --- | --- |
 | [`schematic-automation-strategy.md`](./schematic-automation-strategy.md) | How does the LLM automate KiCad schematics in 2026? | resolved | 2026-06-13 | 2026-06-13 |
 | [`cpu-soft-core-choice.md`](./cpu-soft-core-choice.md) | TV80 or A-Z80 for the simulation core? | open | 2026-06-13 | — |
+| [`execution-visualization-monitor.md`](./execution-visualization-monitor.md) | Real-time monitor inside the electronics simulator? | open | 2026-06-13 | — |
