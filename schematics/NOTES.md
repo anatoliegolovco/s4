@@ -20,33 +20,46 @@
 
 ## Block inventory
 
-For each block: source schematic, parts (Soviet → modern per `parts_map.json`),
-and any scan discrepancy and how it was resolved.
+Designators below were transcribed from the segmented tiles
+(`schematics/tiles/`). Full structured data is in `schematics/bom.json`
+(parts) and `schematics/wiring.json` (nets). `[x]` = block identified;
+pin-level nets are tracked in `wiring.json`'s per-block `status`.
 
-- [ ] **CPU & clock** — Z80 @ 3.5 MHz; 14 MHz pixel clock (async). *(locate on
-      schematic sheet; transcribe surrounding glue.)*
-- [ ] **Address decode / memory map** — ROM 0x0000–0x3FFF, screen 0x4000+.
-- [ ] **DRAM + refresh** — К565РУ5, RAS-before-CAS, ИЕ7 refresh counter, WAIT gen.
-- [ ] **Video bus arbitration** — КП12 (≈74ALS253 dual 4:1 mux) — the "crown jewel".
-- [ ] **Sync generation** — К1533ИЕ7 (≈74ALS193 up/down counter) H/V sync.
-- [ ] **Pixel chain** — К555ИР16 (D39/D40/D41) @ 14 MHz, keep LS timing.
-- [ ] **RGB output stage** — КТ315Г/КТ361Г (VT13–VT18), trimmers R41–R60.
-      Note SCART mod: **200 Ω sync resistor** (100 Ω → color loss).
-- [ ] **Audio** — BEEP via port 0xFE, T-state timestamped.
-- [ ] **Tape** — К5545АЗ (≈ LM567) tone decoder.
-- [x] **TR-DOS / Beta Disk** — **КР1818ВГ93 ≈ WD1793 FDC** confirmed from the
-      board photo; separate TR-DOS ROM + К555/КР1533 glue; board `СМП59-96Г-16-2`
-      (1989). Separate daughterboard, not on the mainboard sheet.
+- [x] **CPU & clock** — **D6 = Z80** (power pins 11/29 confirm DIP-40); Z1
+      14 MHz pixel clock; clock R3 820, reset C2 10µF + R10 5.1k, pull-ups
+      R4/R5 5.1k; WAIT gen D20/D12 ТМ2. (tile r3c1)
+- [x] **Address decode** — D26 КП12 mux (A9/A13/A14/A15); D22 ЛЕ1, D32 ЛА4
+      decode gates; ROM CS net TODO. (tiles r3c2)
+- [x] **DRAM + refresh** — **D28–D35 = К565РУ5** ×8 (power pins 8/16); address
+      muxes D24/D25 → VA; refresh address from ИЕ7 counters; WAIT to slow РУ5.
+      (tile r2c2)
+- [x] **Video bus arbitration ("crown jewel")** — D23/D24/D25/D26 КП12
+      (≈74ALS253) + D38 ИР23 latch → VADDR + RAS/CAS. (tiles r1c2, r2c2)
+- [x] **Sync generation** — D2/D19 (H), D3/D4 (V) = ИЕ7 (СТ2 counters); D8/D21
+      ТМ2; D10 ЛА4; D14 ЛЕ1; D18 ЛП5 (FLASH). (tiles r1c1, r2c1)
+- [x] **Pixel chain** — **D39/D40/D61 = К555ИР16** (74LS165) @ 14 MHz; **keep
+      LS timing**. (Note: spec text said D41; the board labels D61.) (tile r1c3)
+- [x] **RGB output stage** — VT3–VT18 (КТ315Г/КТ361Г) + ladder R41 620/R42
+      1.8k/R47 270/R48 620/R49 1k/R54 620/R55 1.8k/R60 820 + VD3–VD8; УС-1
+      emitter follower (VT1). SCART mod: **200 Ω sync** (100 Ω → color loss).
+      Color stage D42/D43/D45/D46/D47/D48. (tiles r1c3, r2c3, r3c3)
+- [x] **Audio/tape** — port 0xFE (BEEP/border/tape); X5 "M" connector
+      (OUT/GND/IN); R30/R31 3k, R32 5.1k; К5545АЗ≈LM567 tone decode (net TODO).
+      (tile r3c3)
+- [x] **TR-DOS / Beta Disk** — **КР1818ВГ93 ≈ WD1793** confirmed from board
+      photo; on-board buffers D50/D51 (ИР22) + disk-address diodes; FDC is a
+      separate daughterboard, not on the mainboard sheet. Board `СМП59-96Г-16-2`.
 - [ ] **(Optional) 128 KB expansion** — port `#7FFD` paging; mod chips
       К555ТМ9 / К1533КП11 / К555ЛЛ1 / К1533ЛА3 (`reference/photos/sintez128.jpg`).
-      Tracked as an opt-in variant — see
-      `docs/ledger/architecture/bank-switching-ram-size.md`.
+      Opt-in variant — see `docs/ledger/architecture/bank-switching-ram-size.md`.
 
-## BOM (component table) — TODO
+## BOM & wiring — structured outputs
 
-The mainboard schematic's right-edge table is the canonical component list.
-Transcribe it into `parts_map.json` (Soviet ref → modern equivalent → timing).
-High-res render is reproducible (see `docs/references/sources-catalog.md`).
+- `schematics/bom.json` — every identified package (ref → Soviet type → western
+  equivalent → block), with `confidence` flags and a `gaps_to_resolve` list.
+- `schematics/wiring.json` — buses, control signals, connector pinouts, power
+  pins, and block-to-bus relations; pin-level intra-block nets are the next pass.
+- Pipeline & status: `docs/schematic-extraction.md`.
 
 ## Known scan errors to reconcile
 

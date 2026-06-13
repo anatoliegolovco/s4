@@ -49,6 +49,7 @@ Rules: append, don't rewrite; English only; `kebab-case` names. Full rules in
 | --- | --- | --- |
 | architecture | [Faithful К565РУ5 timing vs modern SRAM?](./architecture/dram-faithful-vs-improved.md) | 2026-06-13 |
 | architecture | [How much RAM / bank-switching scheme?](./architecture/bank-switching-ram-size.md) | 2026-06-13 |
+| architecture | [Mainboard BOM & wiring extraction](./architecture/schematic-bom-wiring-extraction.md) | 2026-06-13 |
 | tooling | [TV80 or A-Z80 for the sim core?](./tooling/cpu-soft-core-choice.md) | 2026-06-13 |
 | sourcing | [Which Z80 part for the physical build?](./sourcing/z80-part-selection.md) | 2026-06-13 |
 
