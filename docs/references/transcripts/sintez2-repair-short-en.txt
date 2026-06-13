@@ -1,0 +1,297 @@
+[00:00:01] O-o-oh, beauty!
+[00:00:03] ...just for games and leisure activities...
+[00:00:06] ...every decent person should have a soldering iron to organize their leisure time...
+[00:00:09] ...such crystal needles have grown on the terminals of some elements...
+[00:00:13] ...if we put them together, we find this diastema...
+[00:00:17] This is how the artist imagines leisure.
+[00:00:24] Hello, friends!
+[00:00:26] Today is a bit unusual video: I decided to research what microcontrollers
+[00:00:29] are being produced locally to substitute the imported versions.
+[00:00:39] In general, the list isn't very large, but there is enough to choose from.
+[00:00:43] But the truth is, it turned out to be absolutely impossible to buy any of them...
+[00:00:47] And then I remembered that I have an old, ancient corpse of such a grandad.
+[00:00:52] This is a Soviet clone of the ZX Spectrum, on TTL ICs.
+[00:00:55] The most local ones.
+[00:00:58] One of the latest Soviet engineerings.
+[00:01:00] This box has not been opened for about 30 years and what's inside is a big, big surprise.
+[00:01:05] Let's proceed with the exhumation.
+[00:01:09] Maybe it has already decomposed into mold and lime honey...
+[00:01:20] Well...
+[00:01:22] Cable for a tape recorder.
+[00:01:25] Cables for TV and power.
+[00:01:33] Everything is very oxidized here.
+[00:01:42] The power supply.
+[00:01:47] O-o-oh, beauty!
+[00:01:51] Well, let's try to resuscitate this grandad.
+[00:01:55] Before giving it an electric charge, let's look at the state of the power supply.
+[00:01:59] As far as I remember, it is linear, so it has a toroidal transformer and an LM7805.
+[00:02:03] And I don't have any concerns about them, but the electrolytes (capacitors) need to be checked.
+[00:02:12] The main smoothing capacitor here is the K50-24 batch.
+[00:02:15] This is a good, high-quality batch.
+[00:02:18] But after the LM7805 there is a K50-35 series, about which the reviews are not very good.
+[00:02:22] In addition, there is a red "flag"-type capacitor installed here,
+[00:02:25] in which over time the silver coating, which is the electrodes,
+[00:02:28] can diffuse into the ceramic dielectric
+[00:02:31] and cause noise, or even a short circuit.
+[00:02:33] I desoldered the electrolyte and checked it with a tester.
+[00:02:36] It turned out to be all right, the capacity and ESR are normal.
+[00:02:39] I checked the "flag" and, surprisingly, it is also normal.
+[00:02:42] So I connect the PSU directly to the smoothing capacitor,
+[00:02:46] limit the current to 0.01A and leave it for several hours
+[00:02:51] so that the oxide layer restored through anodization.
+[00:02:55] Going further. I see that there is a 39 Ohm resistor installed between the ground and the LM7805,
+[00:03:00] that is quite strange.
+[00:03:02] Firstly, LM7805 (at least this version) does not imply adjustment of the output voltage,
+[00:03:07] and secondly, as I later found out, there is no any resistor in the schematic.
+[00:03:11] Because of it, the power supply gives an increased voltage
+[00:03:14] of 5.35 volts without load, which is too much.
+[00:03:17] And also under load, it gives out an increased voltage.
+[00:03:20] I don't really understand why this was done,
+[00:03:23] maybe to provide increased voltage when starting the computer
+[00:03:26] or to reduce slightly the power dissipation of the LM7805, I don't know.
+[00:03:29] Write in the comments if you know why this was done.
+[00:03:33] Well, I decided not to remove this one,
+[00:03:35] but to solder another 15 Ohms resistor in parallel with it.
+[00:03:38] This will bring the output voltage closer to the required 5 volts,
+[00:03:41] and the effect conceived by the developers will decrease, but still remain.
+[00:03:46] That's it with the power supply. Now let's take care of the computer itself.
+[00:03:49] It also has electrolytes, so I also connect it through the PSU with a current limit
+[00:03:55] and slowly, gradually increase the current.
+[00:04:04] And, it's a miracle, it turned on and gave out a picture.
+[00:04:07] It is a bit in a green shade, but we'll fix it easily.
+[00:04:11] But there's a problem with the keyboard: only 4 buttons work.
+[00:04:14] And they don't work the way they should.
+[00:04:17] This string is all I can type on it.
+[00:04:20] The keyboard in it is made of flexible plastic and most likely it has already rotted.
+[00:04:22] Anyway, we can't continue without an autopsy, so let's get started.
+[00:04:27] And while I'm disassembling it, let's study the user manual,
+[00:04:30] which, fortunately, I also have preserved.
+[00:04:32] Gaming Computer.
+[00:04:34] "EY"...
+[00:04:35] Okay, let's have a look.
+[00:04:39] "Attention!" - 4 stickers at once.
+[00:04:42] When connecting the joysticks to the computer, make sure
+[00:04:45] that the trapezoidal key and the connector contacts match... I see.
+[00:04:48] In your computer, the piezoceramic ZP-3 buzzer, the SNP58 socket and plug are not installed
+[00:04:51] due to the lack of supply (*problems of the Soviet Union with production and shipment).
+[00:04:57] I see!
+[00:04:58] In this computer, instead of the Z80A microprocessor,
+[00:05:01] the KR1858VM1 microprocessor is installed, which has a higher speed.
+[00:05:07] Great!
+[00:05:08] Due to the lack of supply, this computer does not have
+[00:05:11] a Sinclair-type joystick connector installed.
+[00:05:14] (This joystick duplicates the numeric keypad buttons).
+[00:05:17] Attention!
+[00:05:19] The set of accessories is equipped with three fuses.
+[00:05:22] Great, great!
+[00:05:24] Further, general instructions.
+[00:05:26] The gaming computer is programmatically compatible with the ZX Spectrum 48 computer.
+[00:05:31] Everything is clear, good.
+[00:05:32] You can use reel-to-reel recorder... Cassette recorder...
+[00:05:35] An "Electronica" video monitor
+[00:05:38] or a household color TV can be used as a display.
+[00:05:42] Wonderful!
+[00:05:44] The package of delivery.
+[00:05:45] This is what we have in the box.
+[00:05:48] Specifications.
+[00:05:49] Microprocessor type - Z80 (but actually not).
+[00:05:53] The clock frequency is 3.5 MHz.
+[00:05:55] And here we have a quartz resonator installed at 14.3MHz,
+[00:06:00] i.e., it is probably divided by 4 and it turns out 3.575 MHz.
+[00:06:07] Well, really, a little faster.
+[00:06:09] RAM capacity, ROM capacity... Screen resolution... Okay.
+[00:06:14] A brief description of the product.
+[00:06:16] The gaming computer is designed for users
+[00:06:18] whose work or study is related to the use of computers,
+[00:06:21] as well as for those who want to use a computer at home
+[00:06:24] for self-study of the basics of computer science
+[00:06:26] and just for games and leisure activities.
+[00:06:29] Great! Let's get down to leisure.
+[00:06:32] Preparation for work and the procedure for working with the product.
+[00:06:35] Do not put objects on the power supply.
+[00:06:38] Okay, we won't.
+[00:06:40] Soooo, connect the joysticks, tape recorder... color adjustment... loading the program.
+[00:06:46] Fine. Everything is clear here.
+[00:06:50] Warranty obligations.
+[00:06:53] Certificate of acceptance.
+[00:06:55] March 1992.
+[00:06:57] Next we have warranty cards.
+[00:07:03] A lot of warranty cards.
+[00:07:06] Aha, here! Recommendations for connecting a computer to a TV or video monitor.
+[00:07:12] Characteristics of the signals.
+[00:07:13] Here in detail about all the signals that we can get from the video part of the board.
+[00:07:19] Got it, everything is clear.
+[00:07:21] Before modifying the TV, you should study the TV schematic.
+[00:07:26] We will! Of course!
+[00:07:28] In case of difficulties during the modification,
+[00:07:30] it is necessary to consult a TV workshop or an experienced radio ham
+[00:07:33] (if you are not one of them))).
+[00:07:36] Soooo, connecting to a TV.
+[00:07:38] In order to switch... to display mode... la-la-la... connect the appropriate... so, everything is clear...
+[00:07:44] Modification of TVs of type 3USCT and 4USCT, with chroma modules of type MC-31...
+[00:07:51] I don't understand why there is no soldering iron included in the package?
+[00:07:56] Well, although probably every decent person
+[00:07:58] should have a soldering iron and everything else to organize their leisure time.
+[00:08:02] Okay.
+[00:08:03] Install and solder an additional socket of the DIN type.
+[00:08:05] OK, done.
+[00:08:07] .....
+[00:08:11] Well, let's suppose. Okay )
+[00:08:13] .....
+[00:08:20] In general, it should be clear to a fool.
+[00:08:22] Everything is simple, everything is clear.
+[00:08:24] Any normal person, if he is not quite a moron,
+[00:08:27] easily modifies the chroma module MC-31, MC-41, MC-402, 403...
+[00:08:34] Well, what problems can there be?
+[00:08:37] Everything is clear.
+[00:08:38] Lets' go further.
+[00:08:39] Here we have an upgrade of the chromaticity module.
+[00:08:43] Well, in general, everything is clear, everything is simple.
+[00:08:46] There are no questions.
+[00:08:48] Let's digress from the user manual for a second, there's something interesting here.
+[00:08:51] After disassembly, I immediately seal the ultraviolet erasure ROM,
+[00:08:55] so that the flashlights do not accidentally erase the firmware,
+[00:08:58] and then I notice an interesting physical phenomenon:
+[00:09:00] such crystal needles have grown on the terminals of some elements.
+[00:09:04] I don't really understand the nature of the phenomenon,
+[00:09:06] if someone knows what caused it - write in the comments.
+[00:09:09] I haven't checked, but I suspect that these crystals may be conductive,
+[00:09:12] so it's a luck that nothing burned.
+[00:09:16] Let's continue with manual.
+[00:09:17] Here we have a schematic diagram.
+[00:09:20] Large, detailed.
+[00:09:22] I scanned it to a file and I'll leave a link in the description, so if you are interested, feel free to study it.
+[00:09:26] Then we will not dwell on it in detail now.
+[00:09:32] Then the location of the elements on the board.
+[00:09:35] Also useful.
+[00:09:38] Keyboard schematic.
+[00:09:39] Well, it's pretty small and illegible here, but in general everything can be understood.
+[00:09:43] Schematic of the power supply unit.
+[00:09:48] And this is how the artist imagines leisure.
+[00:09:53] Well, yes... Here's a fish...
+[00:09:55] Good.
+[00:09:57] Then the addresses of the service centers,
+[00:10:00] well, that's all, that's the end of the manual.
+[00:10:03] Back to our artifact.
+[00:10:05] I cleaned the overgrown strange crystals, and examined the keyboard,
+[00:10:09] which unfortunately finally decomposed.
+[00:10:11] There is no way to restore it, and obviously I will have to order a new one.
+[00:10:15] I tried to restore several tracks with the conductive glue,
+[00:10:18] a few more keys worked, but the situation has not changed fundamentally.
+[00:10:22] And the keyboard here is not simple, it is five-layered here:
+[00:10:24] three contact layers and two intermediate ones.
+[00:10:27] This is necessary for some additional keys to work,
+[00:10:29] for example, such as left/right, up/down arrows and so on.
+[00:10:32] I.e. for example, when you press the up arrow, two circuits are shorted at the same time,
+[00:10:36] one is equivalent to Caps Shift and the other is equivalent to the "7" key.
+[00:10:39] Just in case, let's make sure that the problem is in the keyboard, and not in some circuits on the board.
+[00:10:44] To do this, I alternately close all the contacts of the first connector with all the contacts of the second one,
+[00:10:48] which gives us 40 possible crosspoints
+[00:10:51] and, accordingly, that is why there are 40 keys on the original ZX Spectrum
+[00:10:55] (not the Spectrum+).
+[00:10:56] Well, great, all the lines are working, so the problem is in the keyboard.
+[00:11:00] Let's now compensate all the undelivered parts,
+[00:11:03] so that finally, after 30 years, the device will be complete.
+[00:11:06] We start with the SNP58-64 connector,
+[00:11:09] to which literally all the pins of the processor and the power bus are connected.
+[00:11:13] This is of course very convenient for designing and for connecting any peripherals.
+[00:11:17] As I understood from the schematics found on the Internet, the original ZX Spectrum+ was done exactly the same,
+[00:11:21] only the connector, of course, was different.
+[00:11:24] In general, this particular clone is very different in its architecture from the original
+[00:11:27] in that the original Spectrum used a custom IC
+[00:11:30] that provides all the peripheral logic of the computer from the graphics system to the IO ports.
+[00:11:36] Similar ICs were also made for Soviet clones,
+[00:11:38] but this particular model is based on discrete elements, which of course made the design more expensive.
+[00:11:44] But this is also why he is valuable.
+[00:11:46] Next is the Sinclair joystick connector.
+[00:11:48] There were two of them designed here, but the one is missing.
+[00:11:51] Joysticks of this type duplicate the numeric keypad buttons:
+[00:11:54] one from "1" to "5", and the second from "6" to "0".
+[00:11:57] So no additional elements are required on the board,
+[00:12:01] unlike the Kempston joystick,
+[00:12:03] which requires a register chip and several strapping elements.
+[00:12:10] Then I replaced the adjustable resistors SP3-38A,
+[00:12:13] which were in terrible condition.
+[00:12:15] Fortunately, all this can still be bought
+[00:12:17] and we can keep the original design without any clumsy customization.
+[00:12:21] But I have to say that even these new resistors are absolutely disgusting quality.
+[00:12:25] Made from cardboard, tight and with very poor contact.
+[00:12:28] But they are original.
+[00:12:32] Well, the final touch is the piezoelectric buzzer ZP-3,
+[00:12:36] it is also still on sale and also of terrible quality.
+[00:12:39] All the elements for its operation are present on the board, so let's solder it...
+[00:12:46] stick it to the board so that it does not hang out...
+[00:12:51] and that's it!
+[00:12:53] And while I haven't drawn and ordered a new keyboard yet,
+[00:12:58] I decided to solder cable lines directly to its connectors so as not to poke wires into them and not to bend the contacts.
+[00:13:02] I was known as Vladislav the Poker.
+[00:13:06] After that, I built such a mini keyboard.
+[00:13:09] There are only 6 buttons:
+[00:13:11] this is the "J" button or the "LOAD" command,
+[00:13:13] then the SHIFT button,
+[00:13:15] then the "P" button, which in combination with the SHIFT gives quotes.
+[00:13:19] The "R" button is also the "RUN" command
+[00:13:21] and the ENTER button.
+[00:13:22] To make it more fun to experiment,
+[00:13:25] I found in my bins such a chip from 1988 year.
+[00:13:28] There are three bidirectional 8-bit I/O ports with a set of various additional functions.
+[00:13:34] In fact, this is of course a Soviet clone of an Intel 8255A,
+[00:13:36] and at that time it was extremely rare,
+[00:13:38] Soviet radio hams were ready to sell their soul for a set of this IC family.
+[00:13:42] I'll connect everything according to this schematic.
+[00:13:44] Everything is quite simple here.
+[00:13:45] We will address according to the classical Spectrum idea,
+[00:13:49] pulling one of the lines of the address bus to zero, in our case the first by number
+[00:13:53] (that is, the second from zero).
+[00:13:54] The next two bits will be used to address the desired port,
+[00:13:58] i.e. there are four addresses: the 1st, 2nd, 3rd ports, and the 4th is the chip configuration register.
+[00:14:04] I used such logical gates, because this is all that I found working, the rest turned out to be dead.
+[00:14:09] But here it would be enough to have one two-input logical gate OR.
+[00:14:13] The chip itself is made according to the progressive NMOS technology at that time,
+[00:14:17] it is compatible with TTL and withstands a higher current at the low logical level than at the high level,
+[00:14:22] and therefore we will connect the LEDs to the power bus
+[00:14:25] and output inverted values to the ports so that the LED lights up
+[00:14:29] when the output of the corresponding bit of the corresponding port will be a logical zero.
+[00:14:34] Here I must say that according to the datasheet the outputs should hold 2.5mA,
+[00:14:39] but I have 1k resistors here and therefore 5mA.
+[00:14:42] Nevertheless, the forums are full of messages from people who connected lots of strange loads to this type of logic
+[00:14:47] and it seems like in most cases it worked fine
+[00:14:50] and even for a long time )
+[00:14:51] So for simplicity, let's risk doing this.
+[00:14:53] But let's remember for ourselves that this is not right and ay-yai-yai, you don't have to do it that way.
+[00:15:03] Unfortunately, the rare chip turned out to be killed by life.
+[00:15:07] Look at what an incredible shape it took.
+[00:15:09] I also have a clone of the Intel 8080 processor,
+[00:15:14] and if we put them together, we find this diastema )))
+[00:15:18] And of course this chip does not work.
+[00:15:20] I.e. surprisingly it sometimes starts, but it is very unstable.
+[00:15:23] So I bought a new, fresh chip, 95th year of manufacture
+[00:15:27] and assembled a breadboard on it.
+[00:15:29] Then, in the first emulator I came across, I sketched a program in the native Basic.
+[00:15:32] Of course, it was terrible.
+[00:15:34] The language is quite primitive
+[00:15:36] and I remembered why programming then took so much time.
+[00:15:40] Very briefly about the code: Array initialization.
+[00:15:42] Here each digit is either all bits equal to one, or one bit is zero.
+[00:15:47] I did this because there are no shift operations here and it was easier and more versatile.
+[00:15:51] Next, we initialize the chip,
+[00:15:53] namely, we configure all three ports as outputs.
+[00:15:56] Well, then we move the zero bit back and forth across the eight digits of all three ports.
+[00:16:01] I will leave a link to the TAP file in the description.
+[00:16:04] That's all, actually.
+[00:16:05] Let's upload, I'm not afraid of this word, the SKETCH to our hmmm...
+[00:16:08] macrocontroller and enjoy the result.
+[00:16:21] It turned out to be a 24-bit garland the size of a couple of bricks.
+[00:16:25] Although, if not for the size, then in terms of functionality it is quite a modern microcontroller.
+[00:16:30] Here we can add more ports, attach the timer,
+[00:16:33] add a DAC and ADC and there will be a good kit for children's experiments.
+[00:16:37] By the way, write in the comments what else could we can invent on the basis of this grandad
+[00:16:41] (options to throw in the trash and mine bitcoins are not accepted as too obvious).
+[00:16:46] And finally, I would like to express my strong respect to the engineers of the Chisinau Scientific and Production Association "Signal".
+[00:16:52] 30 years have passed, I hope some of them are still in good health.
+[00:16:55] The device turned out to be very decent and reliable.
+[00:16:58] It still works!
+[00:16:59] There are small claims to the materials, but this is not question for engineers.
+[00:17:03] Respect, guys!
+[00:17:05] Well, that's all for today,
+[00:17:05] subscribe, comment and and keep in touch!

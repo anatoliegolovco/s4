@@ -17,6 +17,18 @@ provenance hash, and what we learned from it.
 | `reference/photos/betadisk-original.png` | PNG 1200×1600 | Photo of the **original Beta Disk interface board** (TR-DOS controller), board marking `СМП59-96Г-16-2 8903`. | `a7975b58…` |
 | `reference/photos/sintez128.jpg` | JPEG 560×920 | **"Расширение памяти Синтеза-2 до 128 кб"** — ©1997 PREDATOR/FAST Group writeup of the 128 KB RAM expansion mod, including its schematic. | `d2e74c1b…` |
 | `reference/pinouts/video-pinout.png` | PNG 921×2048 | Screenshot (pvsm.ru) of a **SCART / Jack video output modification** with connector pinouts (RGB + sync + cassette). | `849fa38f…` |
+| `reference/board/sintez2-element-placement.jpg` | JPEG (from 5144×3183 scan) | **"ПРИЛОЖЕНИЕ 2", page 25 — element-placement / silkscreen layout** of the mainboard. Locates every Dxx package physically; the single artifact that resolved the open designators D37/D44/D49/D50/D51. From the Muravyev Google-Drive set. | `99947620…` |
+| `reference/schematics/sintez2-power-supply.jpg` | JPEG (from 5100×2989 scan) | **PSU schematic** — linear: toroidal transformer + LM7805, K50-24 main smoothing cap, K50-35 post-regulator. | `770eb3e2…` |
+| `reference/schematics/sintez2-keyboard.jpg` | JPEG (from 5021×2879 scan) | **Keyboard schematic** — 8×5 = 40-key matrix (5-layer membrane); two Sinclair-joystick ports duplicating keypad 1–5 / 6–0. | `7ffcda00…` |
+| `reference/manual/sintez2-user-manual.pdf` | PDF, 11 pages | **Full factory user manual** (signal characteristics, TV-mod instructions, keyboard schematic, PSU schematic, acceptance certificate dated March 1992). | `34e68014…` |
+
+> Full-resolution originals of the four rows above (incl. the 8283×6956
+> `Schematic_Full.png`, the raw manual PNGs, and the author's EasyEDA keyboard
+> redesign) are kept locally under `schematics/sources/sintez2-drive-2022/`
+> (gitignored per repo policy — large reference downloads are not versioned).
+> The ROM, captured as an audio tape signal `roms/sintez2-rom.wav`, and the
+> Sintez-**M** ROM dump `roms/sintez-M.rom` (José Leandro, 2007), also live
+> under the gitignored `roms/`.
 
 ## Key facts extracted
 
@@ -46,6 +58,64 @@ provenance hash, and what we learned from it.
 - Note: a **200 Ω resistor on the sync channel**; dropping it to **100 Ω causes
   loss of color** — an analog-level detail relevant to the RGB stage (spec §2.3).
 
+### Element-placement layout + power table (`sintez2-element-placement.jpg` + schematic)
+- **Physically locates all 51 ICs.** Resolved the previously-open designators:
+  - **D37** — small DIP, left-centre near D9/C16 (a 14-pin gate).
+  - **D44** — wide DIP, top-centre by connector X4 + R31/R32 (tape/IO area), 20-pin.
+  - **D49** — wide DIP, bottom-left near D17, 20-pin.
+  - **D50** — wide DIP, top-right by X6/X9, 20-pin (the disk/IO address buffer).
+  - **D51** — wide DIP, top-left by X1/X2, 20-pin.
+- The **"Питание микросхем" (chip-power) table** down the schematic's right edge
+  gives the package size of every IC by its power pins (authoritative inventory):
+
+  | Power (+5 V / GND) | Pins | Designators |
+  | --- | --- | --- |
+  | 11 / 29 | 40 | D6 (Z80) |
+  | 8 / 16 | 16 | D28…D35 (DRAM К565РУ5) |
+  | 1,27,28 / 14 | 28 | D36 (ROM 27128) |
+  | 20 / 10 | 20 | D38, D42…D44, D48, D50, D51 (octal latch/buffer) |
+  | 16 / 8 | 16 | D2…D5, D11, D19, D23…D26, D46, D47 (counters/muxes) |
+  | 14 / 7 | 14 | D1, D7…D10, D12…D18, D20…D22, D27, D37, D39…D41, D45 (gates) |
+
+  > ⚠ **Discrepancy to reconcile:** the table places the pixel/colour shift
+  > registers **D39–D41 and D45 in the 14-pin group**, but the spec/earlier
+  > reads call them К555ИР16 (a 16-pin part). Re-check the ИР16 symbol vs. a
+  > 14-pin shift register before freezing the BOM. Pin-count is from the scan;
+  > the type letter must come from the schematic symbol.
+
+### Connector pinouts (schematic right-edge tables)
+- **X7 "TV":** FV=13, HS=16, VS=7, Y=11, CSYNC=5, +5 V=1; B=3, R=5, G=4,
+  SYNC=2, SOUND=1 (pins 6,7 = GND). Matches the video-output stage (spec §2.3).
+- **X8.1 / X8.2 (expansion bus):** full Z80 bus on the card edge — A0–A15 plus
+  CLK, RESET, WAIT, INT, NMI, M1, MREQ, IORQ, RFSH, RD, WR. This is the
+  **SNP58-64** connector the manual/video call out ("all CPU pins + power").
+
+### Video transcript corroboration (`transcripts/sintez2-repair-short-*.txt`)
+- **CPU = КР1858ВМ1**, fitted in place of a Z80A ("higher speed", per the
+  manual page read on camera). Crystal **14.3 MHz ÷ 4 ≈ 3.575 MHz** CPU clock —
+  note this is master ÷4, refining the spec's "14 MHz = 2× CPU" wording.
+- **ROM is a UV-erasable EPROM** (window sealed on camera) → confirms the
+  27128-class D36.
+- **PSU:** linear, toroidal transformer + LM7805; a factory **39 Ω resistor**
+  to ground biases the output to ~5.35 V (intentional). Caps K50-24 / K50-35.
+- **RGB trimmers = SP3-38A**; **piezo buzzer = ЗП-3** (support parts present on
+  board even when the buzzer itself was omitted at the factory).
+- Keyboard: **5-layer membrane, 8×5 = 40 keys**; two Sinclair joystick ports
+  (1–5 and 6–0), **no Kempston** (would need a register chip). Built **03/1992**.
+
+### KiCad-source search (owner request — outcome)
+- The colorized redraw `sintez2-original.pdf` was produced by **Eeschema (KiCad)
+  on 2012-11-09** (PostScript title `Sintez_II_orig.ps`) — so a KiCad redraw
+  exists, but its **`.sch` source is not published anywhere reachable**: not on
+  GitHub, not on habr, not in the zx-pk t-240/27280 threads, not in José
+  Leandro's trastero set (that's Sintez-M, a JPEG). We only have the exported
+  PDF (already vector, re-renderable at any DPI — `pdftocairo -svg/-r 600`).
+- **Useful adjacent KiCad assets found** (for authoring our own T2 schematic):
+  `github.com/alvaroalea/8bits_kicad_libraries` (К155/К555/К1533 + Spectrum
+  symbols) and `github.com/krzys9876/ZX_Spectrum_diy` (full DIY Spectrum in
+  KiCad). Per the spec, **KiCad is our source of truth**, so we author the
+  canonical `.kicad_sch` fresh rather than inherit the 2012 file.
+
 ## Online sources (web)
 
 Not committed binaries — links discovered/used during research. External content;
@@ -53,7 +123,10 @@ treat as secondary to the committed primary sources above.
 
 | Link | Type | Notes |
 | --- | --- | --- |
-| https://youtu.be/0_mFe5sdLsc | Video (YouTube) | Sintez-2 ZX-Spectrum clone — supplied by the project owner as a reference. |
+| https://youtu.be/0_mFe5sdLsc | Video (YouTube) | **Dmitry Muravyev**, "Импортозамещение" (2022-07-30) — Sintez-2 revival, supplied by the project owner. Auto-caption transcript saved at `docs/references/transcripts/sintez2-repair-short-{ru,en}.txt`. |
+| https://youtu.be/hP12QHBkZDM | Video (YouTube) | Muravyev's **full 36-min restoration** of the same unit (no captions available; visual board close-ups only). |
+| https://drive.google.com/drive/folders/1PBfw-9AaOMJzl4I1Lhckx7aKGpiDoIub | Google Drive | **Muravyev's reference set** linked in the video description: full schematic scan, board element-placement, PSU + keyboard schematics, 11-page user manual, ROM-as-audio, and his EasyEDA keyboard redesign. Mirrored into the repo (see inventory above). |
+| https://trastero.speccy.org/cosas/JL/Sintez-M/sintez-m.html | Page | **José Leandro Novellan** (2007): Sintez-**M** (predecessor) schematic JPEG + a 16 KB `sintez-M.rom` dump. The M shares the logic design; not the same board. |
 | https://habr.com/ru/articles/222569/ | Article | "Синтез-2 — отечественный клон ZX-Spectrum"; source of the 1920×1278 board photo (`reference/photos/sintez2-board-habr.jpg`) and rear-panel shot. |
 | https://zx-pk.ru/threads/27280-remont-sintez-2.html | Forum | "Ремонт Синтез 2"; text corroborates D39–D42 / КР1533КП12 / ИР16; 27128 ROM → W27C512 flash. |
 | https://zx-pk.ru/archive/index.php/t-240.html | Forum | Sintez-2 schematic/repair; 128K mod lifts 3 pins of the КП12 A14/A15 mux. |
