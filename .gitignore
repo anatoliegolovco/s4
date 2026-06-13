@@ -1,0 +1,15 @@
+# ROMs and large reference downloads are NOT versioned.
+roms/*
+!roms/.gitkeep
+!roms/README.md
+schematics/sources/*
+!schematics/sources/.gitkeep
+
+# Build / tooling artifacts
+__pycache__/
+*.pyc
+sim/circuits/*.sim
+!sim/circuits/.gitkeep
+*.vcd
+*.net
+build/

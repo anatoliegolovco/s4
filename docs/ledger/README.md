@@ -37,10 +37,25 @@ Rules: append, don't rewrite; English only; `kebab-case` names. Full rules in
 
 | Topic | Status | Description |
 | --- | --- | --- |
+| [`inception`](./inception/README.md) | active | What we're building, why, and the hard constraints. |
+| [`architecture`](./architecture/README.md) | active | Hardware/behavioral architecture decisions. |
+| [`tooling`](./tooling/README.md) | active | Tool stack and the zero-click control plane. |
+| [`sourcing`](./sourcing/README.md) | active | Procurement of physical parts. |
 | [`project-setup`](./project-setup/README.md) | active | Repository, docs, and tooling setup. |
 
 ## Open questions (across all topics)
 
 | Topic | Question | Opened |
 | --- | --- | --- |
-| project-setup | [Documentation & ledger structure](./project-setup/documentation-structure.md) | 2026-06-13 (resolved) |
+| architecture | [Faithful К565РУ5 timing vs modern SRAM?](./architecture/dram-faithful-vs-improved.md) | 2026-06-13 |
+| architecture | [How much RAM / bank-switching scheme?](./architecture/bank-switching-ram-size.md) | 2026-06-13 |
+| tooling | [TV80 or A-Z80 for the sim core?](./tooling/cpu-soft-core-choice.md) | 2026-06-13 |
+| sourcing | [Which Z80 part for the physical build?](./sourcing/z80-part-selection.md) | 2026-06-13 |
+
+## Resolved questions
+
+| Topic | Question | Resolved |
+| --- | --- | --- |
+| inception | [Project charter & hard constraints](./inception/project-charter.md) | 2026-06-13 |
+| tooling | [KiCad schematic automation strategy](./tooling/schematic-automation-strategy.md) | 2026-06-13 |
+| project-setup | [Documentation & ledger structure](./project-setup/documentation-structure.md) | 2026-06-13 |

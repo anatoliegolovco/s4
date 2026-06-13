@@ -1,0 +1,98 @@
+{
+  "$schema_note": "Soviet part <-> modern part <-> KiCad symbol/footprint <-> SimulIDE class <-> timing. First-class artifact: drives both substitution (spec §3) and the KiCad<->SimulIDE bridge (spec §7). STUB — extend as parts are modeled.",
+  "version": 0,
+  "classes": {
+    "1": "Pure Boolean logic — zero state risk, free to swap to 74ALS/74HC",
+    "2": "DRAM — high timing risk, model with real RU5 timing",
+    "3": "Pixel shift registers — subtle setup/hold, keep LS-family timing",
+    "4": "Video-output transistors — analog levels, keep KT315/KT361",
+    "5": "Tape tone decoder — do not substitute"
+  },
+  "parts": [
+    {
+      "soviet": "КР1858ВМ1",
+      "aka": ["UA880D", "U880", "UB880D"],
+      "modern": "Zilog Z84C00",
+      "western_equiv": "Z80",
+      "class": 1,
+      "role": "CPU",
+      "kicad_symbol": null,
+      "kicad_footprint": null,
+      "simulide_class": "TV80 or A-Z80 soft core (behavioral, sim only)",
+      "timing": { "clock_mhz": 3.5, "tstates_per_frame": 69888, "notes": "canonical T-states; NO contention" },
+      "status": "stub"
+    },
+    {
+      "soviet": "К565РУ5",
+      "modern": "4164 (model with real РУ5 timing)",
+      "western_equiv": "4164 64Kx1 DRAM",
+      "class": 2,
+      "role": "Main DRAM",
+      "kicad_symbol": null,
+      "kicad_footprint": null,
+      "simulide_class": "behavioral DRAM (to be written)",
+      "timing": { "tRAS_ns": null, "tCAS_ns": null, "tRCD_ns": null, "precharge_ns": null, "notes": "RAS-before-CAS; WAIT generator tuned to slow Soviet timing" },
+      "status": "stub"
+    },
+    {
+      "soviet": "К555ИР16",
+      "modern": "74LS165 (keep LS timing)",
+      "western_equiv": "74LS165",
+      "class": 3,
+      "role": "Pixel shift register (D39/D40/D41)",
+      "kicad_symbol": null,
+      "kicad_footprint": null,
+      "simulide_class": "shift register, LS family timing",
+      "timing": { "setup_ns": 22, "family": "LS", "notes": "deliberate LS choice; ALS would inflate margin ~3x; clocked at 14 MHz" },
+      "status": "stub"
+    },
+    {
+      "soviet": "К1533ИЕ7",
+      "modern": "74ALS-class counter",
+      "western_equiv": "74ALS counter",
+      "class": 1,
+      "role": "Refresh address + H/V sync counters",
+      "kicad_symbol": null,
+      "kicad_footprint": null,
+      "simulide_class": "counter",
+      "timing": { "family": "ALS" },
+      "status": "stub"
+    },
+    {
+      "soviet": "КП12",
+      "modern": "bus multiplexer (74xx equivalent)",
+      "western_equiv": "bus multiplexer",
+      "class": 1,
+      "role": "CPU/video bus arbitration",
+      "kicad_symbol": null,
+      "kicad_footprint": null,
+      "simulide_class": "multiplexer",
+      "timing": {},
+      "status": "stub"
+    },
+    {
+      "soviet": "КТ315Г / КТ361Г",
+      "modern": "NPN/PNP small-signal (levels matter; not 2N3904/BC237)",
+      "western_equiv": "NPN / PNP small-signal",
+      "class": 4,
+      "role": "RGB output level shifters (VT13–VT18)",
+      "kicad_symbol": null,
+      "kicad_footprint": null,
+      "simulide_class": "transistor (ngspice model for levels)",
+      "timing": { "notes": "emitter-follower; trimmer-calibrated per batch" },
+      "status": "stub"
+    },
+    {
+      "soviet": "К5545АЗ",
+      "modern": "LM567 (do not substitute)",
+      "western_equiv": "LM567",
+      "class": 5,
+      "role": "Tape tone decoder",
+      "kicad_symbol": null,
+      "kicad_footprint": null,
+      "simulide_class": "tone decoder",
+      "timing": {},
+      "status": "stub"
+    }
+  ]
+}
