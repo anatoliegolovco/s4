@@ -22,7 +22,11 @@ provenance hash, and what we learned from it.
 | `reference/schematics/sintez2-keyboard.jpg` | JPEG (from 5021×2879 scan) | **Keyboard schematic** — 8×5 = 40-key matrix (5-layer membrane); two Sinclair-joystick ports duplicating keypad 1–5 / 6–0. | `7ffcda00…` |
 | `reference/manual/sintez2-user-manual.pdf` | PDF, 11 pages | **Full factory user manual** (signal characteristics, TV-mod instructions, keyboard schematic, PSU schematic, acceptance certificate dated March 1992). | `34e68014…` |
 
-> Full-resolution originals of the four rows above (incl. the 8283×6956
+| `reference/schematics/betadisk-controller-bdi.pdf` | PDF, 2 pp (raster) | **"КОНТРОЛЛЕР ДИСКОВОДА «Ленинград 2»"** — the Beta-Disk / TR-DOS controller schematic (WD1793-class FDC + ИР16/ИЕ10/ТМ9 glue, system connector, board layout). Fills the TR-DOS block that previously had only a board photo. From the zx-pk t-29397 mods thread. | `48e7a4c4…` |
+| `reference/schematics/sintez2-128k-ay-mod.pdf` | PDF, 7 pp (raster) | **128 KB RAM + AY sound-processor expansion** schematics (Odessa boards, Leningrad-2 origin). Feeds the optional banking + audio paths. | `bce3afa7…` |
+| `reference/schematics/sintez2-mainboard-photo.jpg` | JPEG (from 4032×3024) | Photographed copy of the Sintez-2 mainboard schematic — independent cross-check of the canonical scan. | `6b68875e…` |
+
+> Full-resolution originals of the rows above (incl. the 8283×6956
 > `Schematic_Full.png`, the raw manual PNGs, and the author's EasyEDA keyboard
 > redesign) are kept locally under `schematics/sources/sintez2-drive-2022/`
 > (gitignored per repo policy — large reference downloads are not versioned).
@@ -127,6 +131,8 @@ treat as secondary to the committed primary sources above.
 | https://youtu.be/hP12QHBkZDM | Video (YouTube) | Muravyev's **full 36-min restoration** of the same unit (no captions available; visual board close-ups only). |
 | https://drive.google.com/drive/folders/1PBfw-9AaOMJzl4I1Lhckx7aKGpiDoIub | Google Drive | **Muravyev's reference set** linked in the video description: full schematic scan, board element-placement, PSU + keyboard schematics, 11-page user manual, ROM-as-audio, and his EasyEDA keyboard redesign. Mirrored into the repo (see inventory above). |
 | https://trastero.speccy.org/cosas/JL/Sintez-M/sintez-m.html | Page | **José Leandro Novellan** (2007): Sintez-**M** (predecessor) schematic JPEG + a 16 KB `sintez-M.rom` dump. The M shares the logic design; not the same board. |
+| https://zx-pk.ru/threads/29397-dorabotki-klona-sintez-2.html | Forum | **"Доработки клона SINTEZ 2"** (user *jil2*, 2018) — owner of a Sintez-2 with Odessa 128K + AY + Beta-Disk(PLL) mods originally for Leningrad-2; discusses INT-signal fix and port #FF. Found via Yandex during the forum dig. |
+| https://cloud.mail.ru/public/MwCe/wVycd7nSd | File host | **SCHEMES.zip** (24 MB) linked from thread 29397: BDI, 128K+AY, Leningrad-2 PLL schematics (photos + raster PDFs). Mirrored into the repo. **No KiCad source here — all raster.** |
 | https://habr.com/ru/articles/222569/ | Article | "Синтез-2 — отечественный клон ZX-Spectrum"; source of the 1920×1278 board photo (`reference/photos/sintez2-board-habr.jpg`) and rear-panel shot. |
 | https://zx-pk.ru/threads/27280-remont-sintez-2.html | Forum | "Ремонт Синтез 2"; text corroborates D39–D42 / КР1533КП12 / ИР16; 27128 ROM → W27C512 flash. |
 | https://zx-pk.ru/archive/index.php/t-240.html | Forum | Sintez-2 schematic/repair; 128K mod lifts 3 pins of the КП12 A14/A15 mux. |
