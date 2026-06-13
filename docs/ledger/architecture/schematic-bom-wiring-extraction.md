@@ -122,10 +122,28 @@ cross-check. **But 1920px is too low** to read individual silkscreen designators
 a higher-res board photo or more high-zoom reads of the color redraw (the better
 route, and within reach without a board).
 
+### 2026-06-13T16:24:10Z — user
+
+Asked to search deeper for higher-resolution images.
+
+### 2026-06-13T16:40:00Z — claude
+
+Went deeper: extracted **all 8** images from the habr article and downloaded each
+at the max `getpro` resolution — but **habrastorage caps everything at 1920px**,
+and only **one** of the eight is a board shot (the rest: case, rear panel,
+nameplate "SINTEZ 2"/1995, running setup, TV screen). The true full-res host
+(`beta.hstor.org`) is **dead (no DNS)**. priborazbor=696px, festima=case only,
+web.archive.org/archive.ph blocked. **Conclusion: no higher-res Sintez-2 board
+photo exists online** than the 1920px habr shot, which is not enough for the tiny
+silkscreen designators. Saved the **rear-panel** photo
+(`reference/photos/sintez2-rear-panel.jpg`) — it corroborates the connector set
+(PS/TV/RESET + card-edge X8 bus + DB9/DIN). D37/D44/D49/D50/D51 stay open; the
+color redraw remains the only viable route for them.
+
 ## Outcome
 
 <!-- in progress -->
-BOM **v0.3** and wiring **v0.3**; board photos saved as reference.
+BOM **v0.3** and wiring **v0.3**; board + rear-panel photos saved as reference.
 Remaining: trace pin-level nets per block (cpu → decode → dram → arbitration, per
 T2/T3) using the color layers, complete the X8 lower-row pins and the IC power
 table. Each completed block gets `status: done` and is fed to `bridge/net2sim.py`.

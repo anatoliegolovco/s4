@@ -97,7 +97,9 @@
       "files": ["reference/photos/sintez2-board-habr.jpg (1920x1278)", "reference/photos/sintez2-board-priborazbor.jpg"],
       "source": "habr.com/ru/articles/222569 ; priborazbor.ru",
       "confirms": "CPU is an imported Zilog Z8400 (ceramic, bottom-centre); board layout matches the schematic (chip rows, blue X-connectors, КТ315 output transistors). priborazbor scrap-content count ~ 18 DRAM-class + 17 155/1533-series DIP + 1 Z80 + 17 КТ315.",
-      "limit": "1920px is too low to read individual silkscreen designators reliably (each DIP ~90px) — cannot resolve D37/D44/D49/D50/D51 from these photos."
+      "limit": "1920px is too low to read individual silkscreen designators reliably (each DIP ~90px) — cannot resolve D37/D44/D49/D50/D51 from these photos.",
+      "deeper_search": "Pulled all 8 habr images at max available res (1920px cap on habrastorage); only ONE is a board shot. The original full-res host (beta.hstor.org) is dead (no DNS). priborazbor=696px, festima=case only, web.archive.org/archive.ph blocked. No higher-res board photo exists online.",
+      "rear_panel": "reference/photos/sintez2-rear-panel.jpg shows the connector set: PS (power), TV (DIN), RESET button, a card-edge slot (= X8 expansion bus, matches the 64-pin edge connector), plus two DB9 + DIN (joystick/RGB/tape). Nameplate dates the unit 1995."
     }
   },
   "gaps_to_resolve": [
