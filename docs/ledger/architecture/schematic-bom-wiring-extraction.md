@@ -85,10 +85,28 @@ The unresolved low-confidence parts (D37/D44/D49/D50/D51, ИЕ10) are **not
 obtainable from forums** — they must come from high-zoom reads of the color
 tiles and (ideally) a clear board photo. Logged as such.
 
+### 2026-06-13T14:20:00Z — claude
+
+Owner has no physical Sintez and asked to try the Internet Archive for the 404s.
+**web.archive.org and archive.ph are unreachable from this environment** (egress
+policy: `curl`→"Blocked by egress policy", WebFetch→"unable to fetch"); the
+`archive.org/wayback/available` API responds but has no snapshot for those URLs,
+and the surviving forum mirrors are dead (one hijacked to a casino, one 503).
+
+Pivoted to the **color tiles** (no board/internet needed) with targeted high-zoom
+crops, which resolved most remaining gaps to high confidence:
+- **D5 = К1533КП12** — generates video-fetch address K8–K12 from the V-counters.
+- **D11 = К561ИЕ10 (CD4520)** — CMOS dual counter; resolves the "ИЕ10" question.
+- **D26 = К1533КП12** — A/K address mux; **D36 = 27128** (labeled literally).
+- **D48 = К1533ИР22** — border register (D0–D4 → BB/RB/GB).
+- Captured the К565РУ5 address-pin → VADDR map (`wiring.json` `dram_addr_map`).
+
+Still open (not online, no board): **D37, D44, D49, D50, D51** (disk/keyboard area).
+
 ## Outcome
 
 <!-- in progress -->
-BOM **v0.2** and wiring **v0.2** captured (both source documents tiled & extracted).
+BOM **v0.3** and wiring **v0.3** captured (both source documents tiled & extracted).
 Remaining: trace pin-level nets per block (cpu → decode → dram → arbitration, per
 T2/T3) using the color layers, complete the X8 lower-row pins and the IC power
 table. Each completed block gets `status: done` and is fed to `bridge/net2sim.py`.

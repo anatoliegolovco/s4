@@ -18,7 +18,7 @@
     "ЛП5":  { "western": "74LS86",  "fn": "quad 2-in XOR" },
     "ТМ2":  { "western": "74LS74",  "fn": "dual D flip-flop" },
     "ИЕ7":  { "western": "74ALS193/74xx193", "fn": "4-bit up/down binary counter (СТ2)", "family": "ALS (К1533)" },
-    "ИЕ10": { "western": "74xx counter (verify; possibly 74LS393)", "fn": "binary counter", "confidence": "low" },
+    "ИЕ10": { "western": "CD4520B (К561ИЕ10 — CMOS 4000-series dual binary up-counter)", "fn": "dual 4-bit counter", "family": "CMOS К561", "confidence": "high" },
     "ИР16": { "western": "74LS165", "fn": "8-bit PISO shift register (KEEP LS timing)" },
     "ИР22": { "western": "74LS373", "fn": "octal transparent latch" },
     "ИР23": { "western": "74LS374", "fn": "octal D-type latch" },
@@ -32,13 +32,13 @@
     { "ref": "D2",  "type": "ИЕ7", "western": "74ALS193", "block": "video-sync", "role": "horizontal counter (СТ2)", "confidence": "high", "tile": "r1c1" },
     { "ref": "D3",  "type": "ИЕ7", "western": "74ALS193", "block": "video-sync", "role": "vertical counter low (V0-V3)", "confidence": "high", "tile": "r2c1" },
     { "ref": "D4",  "type": "ИЕ7", "western": "74ALS193", "block": "video-sync", "role": "vertical counter high (V4-V7)", "confidence": "high", "tile": "r2c1" },
-    { "ref": "D5",  "type": "КП12", "western": "74ALS253", "block": "video-sync", "role": "vertical-address mux", "confidence": "med", "tile": "r2c1" },
+    { "ref": "D5",  "type": "КП12 (К1533КП12)", "western": "74ALS253", "block": "video-fetch-addr", "role": "mux generating video-address bits K8/K9/K11/K12 from the V-counters (V0-V7)", "confidence": "high", "tile": "r2c1", "color_tile": "gap_bot_left" },
     { "ref": "D6",  "type": "Z80 CPU", "western": "Zilog Z80 (КР1858ВМ1 / Z84C00)", "block": "cpu", "power": { "+5V": 11, "GND": 29 }, "confidence": "high", "tile": "r3c1", "notes": "power-table pins 11/29 confirm Z80 DIP-40" },
     { "ref": "D7",  "type": "ЛИ1", "western": "74LS08", "block": "glue", "sections": ["D7.1","D7.2"], "confidence": "high", "tile": "r1c1/r3c1" },
     { "ref": "D8",  "type": "ТМ2", "western": "74LS74", "block": "video-sync", "sections": ["D8.1","D8.2"], "confidence": "high", "tile": "r1c1" },
     { "ref": "D9",  "type": "ЛН1", "western": "74LS04", "block": "glue", "sections": ["D9.1","D9.5"], "confidence": "med", "tile": "r1c1/r3c2" },
     { "ref": "D10", "type": "ЛА4", "western": "74LS10", "block": "video-sync", "sections": ["D10.1","D10.2"], "confidence": "high", "tile": "r2c1/r1c1" },
-    { "ref": "D11", "type": "ЛН1", "western": "74LS04", "block": "glue", "sections": ["D11.3"], "confidence": "med", "tile": "r1c2" },
+    { "ref": "D11", "type": "ИЕ10 (К561ИЕ10)", "western": "CD4520B", "block": "video-timing", "sections": ["D11.A","D11.B"], "role": "CMOS dual binary counter (CT/E/R, Q1-Q4)", "confidence": "high", "tile": "r1c2", "color_tile": "gap_bot_left", "notes": "К561 = CMOS 4000-series; corrects earlier ЛН1 guess and resolves the 'ИЕ10' mapping (was mis-attributed to D31)" },
     { "ref": "D12", "type": "ТМ2", "western": "74LS74", "block": "video/FLASH", "sections": ["D12.1","D12.3"], "confidence": "med", "tile": "r1c2/r3c1" },
     { "ref": "D13", "type": "ЛИ1 (К1533ЛИ1)", "western": "74ALS08", "block": "dram-timing", "role": "generate /RAS and /CAS (D13.B,D13.C) with R15 470 + C5", "sections": ["D13.B","D13.C"], "confidence": "high", "tile": "r1c2", "color_tile": "zoom_dram", "notes": "redraw label corrects earlier ЛН1 guess" },
     { "ref": "D14", "type": "ЛЕ1 (К1533ЛЕ1)", "western": "74ALS02", "block": "glue", "sections": ["D14.A","D14.B","D14.D"], "confidence": "high", "tile": "r1c2/r2c1", "color_tile": "c_r3c1", "notes": "redraw label D14B = K1533LE1 confirms NOR" },
@@ -56,7 +56,7 @@
     { "ref": "D26", "type": "КП12", "western": "74ALS253", "block": "addr-arbitration", "role": "mux A9/A13/A14/A15", "confidence": "high", "tile": "r3c2" },
     { "ref": "D27", "type": "ЛА4", "western": "74LS10", "block": "glue", "sections": ["D27.3"], "confidence": "low", "tile": "r1c2" },
     { "ref": "D28-D35", "type": "РУ5", "western": "К565РУ5 ≈ 4164 (64Kx1 DRAM)", "block": "dram", "count": 8, "power": { "+5V": 8, "GND": 16 }, "role": "64 KB DRAM array, 1 bit/chip (DD0-DD7)", "confidence": "high", "tile": "r2c2", "notes": "KEEP slow РУ5 timing (spec §2.4)" },
-    { "ref": "D36", "type": "ПЗУ ROM", "western": "27128-class 16Kx8 EPROM (28-pin); Soviet К573РФ6/РФ8 family or imported 27128", "block": "rom", "power": { "+5V": [1,27,28], "GND": 14 }, "role": "stock 48K ROM (BASIC), A0-A13 -> D0-D7", "confidence": "med", "tile": "r3c2", "notes": "28-pin pinout (pins 1/27/28 power) = single 16KB EPROM; exact Soviet marka to confirm on a board photo" },
+    { "ref": "D36", "type": "ПЗУ ROM = 27128", "western": "27128 (16Kx8 EPROM)", "block": "rom", "pins": { "A0-A13": [10,9,8,7,6,5,4,3,25,24,21,23,2,26], "D0-D7": [11,12,13,15,16,17,18,19], "PGM": 27, "VPP": 1, "/CE": 20, "/OE": 22 }, "role": "stock 48K ROM (BASIC), A0-A13 -> D0-D7", "confidence": "high", "tile": "r3c2", "color_tile": "gap_mid_right", "notes": "redraw labels it literally '27128'; Soviet drop-in КР573РФ6/РФ8-class or imported" },
     { "ref": "D38", "type": "ИР23", "western": "74LS374", "block": "addr-latch", "role": "RAM address latch", "confidence": "high", "tile": "r1c2" },
     { "ref": "D39", "type": "ИР16", "western": "74LS165", "block": "pixel-chain", "role": "pixel shift register @14 MHz (KEEP LS)", "confidence": "high", "tile": "r1c3" },
     { "ref": "D40", "type": "ИР16", "western": "74LS165", "block": "pixel-chain", "role": "pixel shift register @14 MHz (KEEP LS)", "confidence": "high", "tile": "r1c3" },
@@ -66,7 +66,7 @@
     { "ref": "D45", "type": "ИР16 (К555ИР16)", "western": "74LS165", "block": "color", "role": "color output register BM/RM/GM/YM -> BR/RR/GR/YR (Q0-Q3 pins 13/12/11/10)", "confidence": "high", "tile": "r1c3", "color_tile": "zoom_connector" },
     { "ref": "D46", "type": "КП12", "western": "74ALS253", "block": "color", "role": "color/attribute mux (YBM,YRM)", "confidence": "high", "tile": "r1c3" },
     { "ref": "D47", "type": "КП12", "western": "74ALS253", "block": "color", "role": "attribute mux (YGM,YM)", "confidence": "high", "tile": "r2c3" },
-    { "ref": "D48", "type": "ИР22", "western": "74LS373", "block": "border", "role": "border colour register", "confidence": "med", "tile": "r2c3" },
+    { "ref": "D48", "type": "ИР22 (К1533ИР22)", "western": "74LS373", "block": "border", "role": "border colour register: D0-D4 -> BB/RB/GB (border R/G/B)", "confidence": "high", "tile": "r2c3", "color_tile": "gap_mid_right" },
     { "ref": "D50", "type": "buffer/АП (verify)", "western": "74LS244/245 (verify)", "block": "disk-addr", "role": "disk address buffer (AA8-AA14) with diodes D9..D16", "confidence": "low", "tile": "r2c3/r3c4" },
     { "ref": "D51", "type": "ИР22", "western": "74LS373", "block": "disk-data", "role": "data latch (D0-D7 -> Q0-Q7)", "confidence": "med", "tile": "r3c4" },
     { "ref": "D41", "type": "ИР16 (К555ИР16)", "western": "74LS165", "block": "pixel-chain", "role": "third pixel shift register @14 MHz (KEEP LS)", "confidence": "high", "tile": "r1c3", "color_tile": "zoom_connector", "notes": "redraw label D41 = K555IR16 confirms spec; earlier scan read 'D61' was a misread" }
@@ -95,9 +95,9 @@
     "not_found": "No per-designator BOM/netlist is published online — this schematic is the authoritative source; forums confirm only top-level specs."
   },
   "gaps_to_resolve": [
-    "RESOLVED via redraw: family=К1533; D13=ЛИ1(RAS/CAS); D14=ЛЕ1; D41(not D61)=ИР16; D45=ИР16 color reg; D46/D47=КП12.",
-    "Still open: exact types for D11 section; D37,D49,D52+ (read remaining color tiles c_r2c2/c_r3c2/c_r3c4 at high zoom).",
-    "D44/D50/D51 exact types; ИЕ10 western mapping (D31 region).",
+    "RESOLVED via redraw: family=К1533; D13=ЛИ1(RAS/CAS); D14=ЛЕ1; D41(not D61)=ИР16; D45=ИР16; D46/D47=КП12; D5=КП12(video-addr K8-K12); D11=К561ИЕ10(CD4520); D26=КП12; D36=27128; D48=ИР22(border BB/RB/GB).",
+    "Still open: D37, D44, D49, D50, D51 (disk/keyboard area) — need high-zoom crops of c_r2c2/c_r3c3 right-side; NOT obtainable from forums (no online BOM) and no physical board available.",
+    "Internet Archive / archive.ph unreachable from this environment (egress policy blocks web.archive.org). Forum mirrors dead. Color tiles are the working source for the rest.",
     "Read remaining rows of the 'Питание микросхем' power table for the full IC inventory + power pins."
   ]
 }
