@@ -35,6 +35,15 @@ Refined recommendation: **48 K stock as the faithful baseline** (first build,
 boot-to-`©` validation), with the **#7FFD 128 KB expansion as the documented
 opt-in variant** modeled from this writeup. Decision still pending owner sign-off.
 
+### 2026-06-13T14:05:00Z — claude
+
+Forum corroboration (zx-pk.ru t-240, `Sintez-128.zip`): the 128K mod **lifts 3
+pins of the КП12 address mux that carry A14/A15** and feeds A14'/A15' from the
+paging logic, plus a **2nd-storey row of К565РУ5 with CAS split** across levels.
+This matches our extracted **D26 КП12 = A9/A13/A14/A15 mux** — i.e. the stock
+board already routes A14/A15 through a КП12, and the 128K mod intercepts exactly
+there. Strengthens the "#7FFD opt-in variant" plan with a concrete tap point.
+
 ## Outcome
 
 <!-- pending owner sign-off: 48K baseline + optional #7FFD 128K variant -->

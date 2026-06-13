@@ -61,6 +61,30 @@ Z80A); **D41** (not "D61") is the 3rd shift register; **D13 = ЛИ1** makes
 /RAS+/CAS; **D14 = ЛЕ1**; **D45 = ИР16**, **D46/D47 = КП12**; **X8** 64-pin bus
 pinout high-confidence; **УС-1…5 = YC-1…5** analog driver modules.
 
+### 2026-06-13T13:50:38Z — user
+
+Asked to web-search Russian forums for the still-missing details.
+
+### 2026-06-13T14:05:00Z — claude
+
+Searched zx-pk.ru / Habr / Pikabu. **No per-designator BOM or netlist is
+published anywhere** — our schematic (originally from **ZX-Club #7** magazine)
+is the authoritative source; forums only confirm top-level specs. Concrete gains
+recorded to `bom.json` → `external_corroboration`:
+
+- Specs match: Z80A @3.5 MHz, 48 KB base / 128 KB upgrade, 16 KB ROM (BASIC),
+  board **СМП59**, the 200-Ω sync resistor.
+- zx-pk t-240: the **128K upgrade lifts 3 pins of the КП12 mux that carry
+  A14/A15** and feeds A14'/A15' from paging logic — **corroborates D26 КП12 as
+  the A14/A15 paging mux**, and the "2nd-storey РУ5 row + CAS split" method.
+- **D36 ROM** is a 28-pin 16Kx8 EPROM (27128-class; Soviet К573РФ6/РФ8 or
+  imported 27128) — exact marka to confirm from a board photo.
+- Further docs: `Sintez-128.zip`, ZX-Club #7, zx-pk thread t-240.
+
+The unresolved low-confidence parts (D37/D44/D49/D50/D51, ИЕ10) are **not
+obtainable from forums** — they must come from high-zoom reads of the color
+tiles and (ideally) a clear board photo. Logged as such.
+
 ## Outcome
 
 <!-- in progress -->

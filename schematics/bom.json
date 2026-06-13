@@ -56,7 +56,7 @@
     { "ref": "D26", "type": "КП12", "western": "74ALS253", "block": "addr-arbitration", "role": "mux A9/A13/A14/A15", "confidence": "high", "tile": "r3c2" },
     { "ref": "D27", "type": "ЛА4", "western": "74LS10", "block": "glue", "sections": ["D27.3"], "confidence": "low", "tile": "r1c2" },
     { "ref": "D28-D35", "type": "РУ5", "western": "К565РУ5 ≈ 4164 (64Kx1 DRAM)", "block": "dram", "count": 8, "power": { "+5V": 8, "GND": 16 }, "role": "64 KB DRAM array, 1 bit/chip (DD0-DD7)", "confidence": "high", "tile": "r2c2", "notes": "KEEP slow РУ5 timing (spec §2.4)" },
-    { "ref": "D36", "type": "ПЗУ ROM", "western": "16 KB mask/EPROM (e.g. К573РФ-class)", "block": "rom", "power": { "+5V": [1,27,28], "GND": 14 }, "role": "stock 48K ROM, A0-A13 -> D0-D7", "confidence": "high", "tile": "r3c2" },
+    { "ref": "D36", "type": "ПЗУ ROM", "western": "27128-class 16Kx8 EPROM (28-pin); Soviet К573РФ6/РФ8 family or imported 27128", "block": "rom", "power": { "+5V": [1,27,28], "GND": 14 }, "role": "stock 48K ROM (BASIC), A0-A13 -> D0-D7", "confidence": "med", "tile": "r3c2", "notes": "28-pin pinout (pins 1/27/28 power) = single 16KB EPROM; exact Soviet marka to confirm on a board photo" },
     { "ref": "D38", "type": "ИР23", "western": "74LS374", "block": "addr-latch", "role": "RAM address latch", "confidence": "high", "tile": "r1c2" },
     { "ref": "D39", "type": "ИР16", "western": "74LS165", "block": "pixel-chain", "role": "pixel shift register @14 MHz (KEEP LS)", "confidence": "high", "tile": "r1c3" },
     { "ref": "D40", "type": "ИР16", "western": "74LS165", "block": "pixel-chain", "role": "pixel shift register @14 MHz (KEEP LS)", "confidence": "high", "tile": "r1c3" },
@@ -84,6 +84,15 @@
     "key_resistors": "R1/R2 470, C1 330; R3 820 (clock); R10 5.1k + C2 10uF (reset); R4/R5 5.1k pull-ups; R11/R72 270; R12 3k; RGB ladder R41 620/R42 1.8k/R47 270/R48 620/R49 1k/R54 620/R55 1.8k/R60 820/R63 5.1k; tape R30/R31 3k, R32 5.1k; sync R66 470/R67 820/R68 820",
     "decoupling": "C12...C36 = 25x 0.15uF; CH 200pF (sync)",
     "note": "Full passive transcription pending; ladder values feed the ngspice RGB model and the 200-ohm sync note (reference/pinouts/video-pinout.png)"
+  },
+  "external_corroboration": {
+    "source": "zx-pk.ru thread t-240; ZX-Club #7 magazine (origin of this schematic); Sintez-128.zip; habr.com/ru/articles/222569",
+    "confirmed": [
+      "CPU Z80A @3.5 MHz; 48 KB base / 128 KB upgrade; 16 KB ROM (BASIC); board СМП59; 200-ohm sync resistor.",
+      "128K upgrade = 2nd-storey row of К565РУ5 with CAS split across levels; the КП12 mux carrying A14/A15 has 3 pins lifted and fed A14'/A15' from the paging logic — corroborates D26 КП12 as the A14/A15 paging mux.",
+      "TR-DOS/Beta-disk = external (КР1818ВГ93)."
+    ],
+    "not_found": "No per-designator BOM/netlist is published online — this schematic is the authoritative source; forums confirm only top-level specs."
   },
   "gaps_to_resolve": [
     "RESOLVED via redraw: family=К1533; D13=ЛИ1(RAS/CAS); D14=ЛЕ1; D41(not D61)=ИР16; D45=ИР16 color reg; D46/D47=КП12.",
