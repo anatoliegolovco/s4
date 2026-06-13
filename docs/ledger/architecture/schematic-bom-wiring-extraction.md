@@ -140,10 +140,29 @@ silkscreen designators. Saved the **rear-panel** photo
 (PS/TV/RESET + card-edge X8 bus + DB9/DIN). D37/D44/D49/D50/D51 stay open; the
 color redraw remains the only viable route for them.
 
+### 2026-06-13T16:28:59Z — user
+
+Asked whether I'd actually formulated the searches in Russian.
+
+### 2026-06-13T16:55:00Z — claude
+
+Yes — several queries were Russian; the real limit is the WebSearch tool being
+US-indexed, which I'd under-exploited. Going deeper with Russian-targeted queries
+surfaced the dedicated **Sintez-2 repair threads** (zx-pk.ru 27280, 19568;
+zx-pk.com 17915). Outcome: their photos are **low-res thumbnails (799×599) + TV
+diagnostic screens — no readable board close-up**; one attachment (S2_09.jpg) is
+just a lower-res copy of OUR schematic (confirms it's **page 29, ПРИЛОЖЕНИЕ 2**,
+canonical). The forum **text** did corroborate the BOM: **D39–D42 = pixel +
+attribute generation, КР1533КП12 video muxes, ИР16**; plus rebuild notes
+(К555↔К1533 interchangeable; РУ5 letters В/Г; 27128 → W27C512 flash). Conclusion:
+**no high-res board photo exists online** even in repair threads — the color
+redraw stays the route for D37/D44/D49/D50/D51.
+
 ## Outcome
 
 <!-- in progress -->
-BOM **v0.3** and wiring **v0.3**; board + rear-panel photos saved as reference.
+BOM **v0.3** and wiring **v0.3**; board + rear-panel photos saved; forum text
+corroborates the video-generator block (D39–D42 / КП12 / ИР16).
 Remaining: trace pin-level nets per block (cpu → decode → dram → arbitration, per
 T2/T3) using the color layers, complete the X8 lower-row pins and the IC power
 table. Each completed block gets `status: done` and is fed to `bridge/net2sim.py`.

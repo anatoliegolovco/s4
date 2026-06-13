@@ -99,7 +99,12 @@
       "confirms": "CPU is an imported Zilog Z8400 (ceramic, bottom-centre); board layout matches the schematic (chip rows, blue X-connectors, КТ315 output transistors). priborazbor scrap-content count ~ 18 DRAM-class + 17 155/1533-series DIP + 1 Z80 + 17 КТ315.",
       "limit": "1920px is too low to read individual silkscreen designators reliably (each DIP ~90px) — cannot resolve D37/D44/D49/D50/D51 from these photos.",
       "deeper_search": "Pulled all 8 habr images at max available res (1920px cap on habrastorage); only ONE is a board shot. The original full-res host (beta.hstor.org) is dead (no DNS). priborazbor=696px, festima=case only, web.archive.org/archive.ph blocked. No higher-res board photo exists online.",
-      "rear_panel": "reference/photos/sintez2-rear-panel.jpg shows the connector set: PS (power), TV (DIN), RESET button, a card-edge slot (= X8 expansion bus, matches the 64-pin edge connector), plus two DB9 + DIN (joystick/RGB/tape). Nameplate dates the unit 1995."
+      "rear_panel": "reference/photos/sintez2-rear-panel.jpg shows the connector set: PS (power), TV (DIN), RESET button, a card-edge slot (= X8 expansion bus, matches the 64-pin edge connector), plus two DB9 + DIN (joystick/RGB/tape). Nameplate dates the unit 1995.",
+      "repair_threads_text": {
+        "source": "zx-pk.ru thread 27280 'Ремонт Синтез 2' (also t-19568); their attached photos are 799x599 thumbnails + TV diagnostic screens, no readable board close-up. The attached schematic (S2_09.jpg) is a lower-res copy of OUR sheet — confirms it is page 29, 'ПРИЛОЖЕНИЕ 2' (canonical source).",
+        "corroborates": "D39-D42 = pixel + attribute generation; КР1533КП12 = the video-generator multiplexers; ИР16 shift register — all match our extraction.",
+        "rebuild_notes": "К555 is a drop-in for К1533 and vice-versa; К565РУ5 use letters В/Г; the 27128 ROM can be replaced by a W27C512 flash (forum-tested)."
+      }
     }
   },
   "gaps_to_resolve": [
