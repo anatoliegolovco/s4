@@ -3,7 +3,8 @@
   "title": "Sintez-2 mainboard — wiring / netlist (intermediate, pre-KiCad/SimulIDE)",
   "source": "reference/schematics/sintez2-schematic.pdf",
   "extracted": "2026-06-13",
-  "status": "v0.2 — buses, connectors, power, block relations captured and cross-checked against the colorized vector redraw (schematics/tiles-color/), which names nets and pins. X8 expansion-bus pinout now high-confidence. Pin-accurate intra-block nets still TODO.",
+  "status": "v0.4 — folded CLI 'Muravyev Drive' findings: X7 'TV' pinout high-confidence; X8 = SNP58-64 card-edge carrying the full Z80 bus; package inventory in bom.json. Pin-accurate intra-block nets still TODO.",
+  "X8_connector_note": "X8 is the SNP58-64 card-edge connector (manual/video: 'all CPU pins + power'); A-side 1->32, B-side 64->33. Confirmed pins in connectors.X8_bus.",
   "primary_source_note": "The redraw 'sintez2-original.pdf' is the primary net-naming source: blue=net labels, dark-red=parts, other colors=wire groups. Per-color layer separations in schematics/tiles-color/layers/ isolate net groups for tracing.",
   "confirmed_net_names": ["DATA BUS", "ADDRESS CPU BUS", "VD0..VD7 (video-data bus)", "/RAS", "/CAS", "/WE", "BR","RR","GR","YR (RGB+bright out)", "BM","RM","GM","YM (color-mux)", "SCREEN", "FLASH", "/CSYNC","/SYNC","/HS","FV","EW", "SOUND", "/IORQ","/MREQ","/RD","/WR","/M1","/RFSH","/HALT","/WAIT","/INT","/NMI","/BUSRQ","/BUSAK","/RESET","/BJ","CLK"],
   "intent": "This JSON is the canonical machine-readable wiring. bridge/net2sim.py and the KiCad authoring step consume it; it is filled incrementally, one block at a time, with confidence flags.",
@@ -83,7 +84,9 @@
       "status": "on-board buffers D50/D51 identified; FDC is off the mainboard sheet" }
   ],
   "connectors": {
-    "X7_TV": { "role": "video/audio out (SCART/RGB)", "signals": ["EW","B","R","G","/SYNC","/HS","FV","/CSYNC","SOUND"], "confidence": "med", "source": "schematics/tiles-color/zoom/zoom_edge.png", "note": "RGB + composite/separate sync + sound; exact pin numbers to finalize from the X7 symbol" },
+    "X7_TV": { "role": "video/audio out (RGB/SCART)", "confidence": "high", "source": "schematic right-edge table (sources-catalog.md, CLI Muravyev Drive)",
+      "pins": { "FV": 13, "HS": 16, "VS": 7, "Y": 11, "CSYNC": 5, "+5V": 1, "B": 3, "R": 5, "G": 4, "SYNC": 2, "SOUND": 1, "GND": [6, 7] },
+      "note": "200-ohm resistor on the sync channel is critical (100-ohm -> colour loss)." },
     "X8_bus": { "role": "expansion edge connector, 64-pin (A-side 1->32, B-side 64->33)", "source": "schematics/tiles-color/zoom/zoom_x8.png", "confidence": "high",
       "pins": { "1": "NC", "2": "/IORQ", "3": "/MREQ", "4": "/HALT", "5": "/NMI", "6": "/INT", "7": "D1", "8": "D0",
                 "64": "/BJ", "63": "/WR", "62": "NC", "61": "/BUSAK", "60": "/WAIT", "59": "/BUSRQ", "58": "/RESET", "57": "/M1" },

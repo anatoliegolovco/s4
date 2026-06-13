@@ -158,11 +158,34 @@ attribute generation, КР1533КП12 video muxes, ИР16**; plus rebuild notes
 **no high-res board photo exists online** even in repair threads — the color
 redraw stays the route for D37/D44/D49/D50/D51.
 
+### 2026-06-13T22:04:59Z — user
+
+Pointed at the public ReSintez project site (re-sintez-248a8f.gitlab.io); asked to
+inspect the **GitLab repo** behind it (maybe content isn't all wired into mkdocs)
+and to **fold both** the export + the new CLI findings into our `s4` repo.
+
+### 2026-06-13T22:10:00Z — claude
+
+- **GitLab repo** `gitlab.com/lightcyphers/electronica/sintez/re-sintez` is
+  **private** — `git ls-remote` asks for credentials and none are available in
+  this environment (only the GitHub proxy for `s4` is). The Pages site is a
+  public static export; I cannot browse the source repo without a GitLab token.
+  Compared the **published** ReSintez BOM (generic 74HC guesses, "6× 4164",
+  "2716/2732 ROM") against ours — ours is far more accurate.
+- **Folded the CLI 'Muravyev Drive' findings into the structured files** (the CLI
+  had updated `sources-catalog.md` prose but not the JSON): `bom.json`/`wiring.json`
+  → **v0.4** with the full package inventory, D6=КР1858ВМ1 (14.3 MHz ÷4),
+  D37/D44/D49/D50/D51 resolved (located + pin-count), X7/X8 pinouts, and the
+  `ir16_pincount_conflict` flag on D39–D41/D45.
+- **Authored the ReSintez-aligned export** `schematics/bom.md` — a corrected,
+  human-readable BOM grouped like the project site, to replace its placeholder.
+
 ## Outcome
 
 <!-- in progress -->
-BOM **v0.3** and wiring **v0.3**; board + rear-panel photos saved; forum text
-corroborates the video-generator block (D39–D42 / КП12 / ИР16).
+BOM **v0.4** and wiring **v0.4**; `schematics/bom.md` export added. Open: the
+ir16 pin-count conflict and exact types of the five 14/20-pin glue/latch parts.
+GitLab source repo is private (needs a token to inspect).
 Remaining: trace pin-level nets per block (cpu → decode → dram → arbitration, per
 T2/T3) using the color layers, complete the X8 lower-row pins and the IC power
 table. Each completed block gets `status: done` and is fed to `bridge/net2sim.py`.
