@@ -103,10 +103,29 @@ crops, which resolved most remaining gaps to high confidence:
 
 Still open (not online, no board): **D37, D44, D49, D50, D51** (disk/keyboard area).
 
+### 2026-06-13T16:16:12Z — user
+
+Asked to search the Russian web (Yandex/Mail.ru/etc.) for Sintez-2 **motherboard
+photos** (to read the remaining chip markings).
+
+### 2026-06-13T16:30:00Z — claude
+
+Found and **downloaded** board photos (egress allows image CDNs even though
+web.archive.org is blocked): `habr.com/ru/articles/222569` →
+`reference/photos/sintez2-board-habr.jpg` (1920×1278, original SONY shot) and a
+priborazbor.ru top view. They confirm the **CPU is an imported Zilog Z8400**
+(ceramic, bottom-centre) and the **layout matches our schematic** (chip rows,
+blue X-connectors, КТ315 output transistors); priborazbor's scrap-content count
+(~18 DRAM-class + 17 155/1533-series + 1 Z80 + 17 КТ315) is a rough total-IC
+cross-check. **But 1920px is too low** to read individual silkscreen designators
+(each DIP ≈90px), so **D37/D44/D49/D50/D51 remain unresolved** — they need either
+a higher-res board photo or more high-zoom reads of the color redraw (the better
+route, and within reach without a board).
+
 ## Outcome
 
 <!-- in progress -->
-BOM **v0.3** and wiring **v0.3** captured (both source documents tiled & extracted).
+BOM **v0.3** and wiring **v0.3**; board photos saved as reference.
 Remaining: trace pin-level nets per block (cpu → decode → dram → arbitration, per
 T2/T3) using the color layers, complete the X8 lower-row pins and the IC power
 table. Each completed block gets `status: done` and is fed to `bridge/net2sim.py`.

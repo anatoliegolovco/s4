@@ -33,7 +33,7 @@
     { "ref": "D3",  "type": "ИЕ7", "western": "74ALS193", "block": "video-sync", "role": "vertical counter low (V0-V3)", "confidence": "high", "tile": "r2c1" },
     { "ref": "D4",  "type": "ИЕ7", "western": "74ALS193", "block": "video-sync", "role": "vertical counter high (V4-V7)", "confidence": "high", "tile": "r2c1" },
     { "ref": "D5",  "type": "КП12 (К1533КП12)", "western": "74ALS253", "block": "video-fetch-addr", "role": "mux generating video-address bits K8/K9/K11/K12 from the V-counters (V0-V7)", "confidence": "high", "tile": "r2c1", "color_tile": "gap_bot_left" },
-    { "ref": "D6",  "type": "Z80 CPU", "western": "Zilog Z80 (КР1858ВМ1 / Z84C00)", "block": "cpu", "power": { "+5V": 11, "GND": 29 }, "confidence": "high", "tile": "r3c1", "notes": "power-table pins 11/29 confirm Z80 DIP-40" },
+    { "ref": "D6",  "type": "Z80 CPU", "western": "Zilog Z80 (board photo shows imported Zilog Z8400 ceramic; Soviet drop-in КР1858ВМ1)", "block": "cpu", "power": { "+5V": 11, "GND": 29 }, "confidence": "high", "tile": "r3c1", "photo": "reference/photos/sintez2-board-habr.jpg", "notes": "power-table pins 11/29 confirm Z80 DIP-40; board photo confirms a Zilog Z8400" },
     { "ref": "D7",  "type": "ЛИ1", "western": "74LS08", "block": "glue", "sections": ["D7.1","D7.2"], "confidence": "high", "tile": "r1c1/r3c1" },
     { "ref": "D8",  "type": "ТМ2", "western": "74LS74", "block": "video-sync", "sections": ["D8.1","D8.2"], "confidence": "high", "tile": "r1c1" },
     { "ref": "D9",  "type": "ЛН1", "western": "74LS04", "block": "glue", "sections": ["D9.1","D9.5"], "confidence": "med", "tile": "r1c1/r3c2" },
@@ -92,7 +92,13 @@
       "128K upgrade = 2nd-storey row of К565РУ5 with CAS split across levels; the КП12 mux carrying A14/A15 has 3 pins lifted and fed A14'/A15' from the paging logic — corroborates D26 КП12 as the A14/A15 paging mux.",
       "TR-DOS/Beta-disk = external (КР1818ВГ93)."
     ],
-    "not_found": "No per-designator BOM/netlist is published online — this schematic is the authoritative source; forums confirm only top-level specs."
+    "not_found": "No per-designator BOM/netlist is published online — this schematic is the authoritative source; forums confirm only top-level specs.",
+    "board_photos": {
+      "files": ["reference/photos/sintez2-board-habr.jpg (1920x1278)", "reference/photos/sintez2-board-priborazbor.jpg"],
+      "source": "habr.com/ru/articles/222569 ; priborazbor.ru",
+      "confirms": "CPU is an imported Zilog Z8400 (ceramic, bottom-centre); board layout matches the schematic (chip rows, blue X-connectors, КТ315 output transistors). priborazbor scrap-content count ~ 18 DRAM-class + 17 155/1533-series DIP + 1 Z80 + 17 КТ315.",
+      "limit": "1920px is too low to read individual silkscreen designators reliably (each DIP ~90px) — cannot resolve D37/D44/D49/D50/D51 from these photos."
+    }
   },
   "gaps_to_resolve": [
     "RESOLVED via redraw: family=К1533; D13=ЛИ1(RAS/CAS); D14=ЛЕ1; D41(not D61)=ИР16; D45=ИР16; D46/D47=КП12; D5=КП12(video-addr K8-K12); D11=К561ИЕ10(CD4520); D26=КП12; D36=27128; D48=ИР22(border BB/RB/GB).",
