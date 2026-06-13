@@ -46,6 +46,23 @@ provenance hash, and what we learned from it.
 - Note: a **200 Ω resistor on the sync channel**; dropping it to **100 Ω causes
   loss of color** — an analog-level detail relevant to the RGB stage (spec §2.3).
 
+## Online sources (web)
+
+Not committed binaries — links discovered/used during research. External content;
+treat as secondary to the committed primary sources above.
+
+| Link | Type | Notes |
+| --- | --- | --- |
+| https://youtu.be/0_mFe5sdLsc | Video (YouTube) | Sintez-2 ZX-Spectrum clone — supplied by the project owner as a reference. |
+| https://habr.com/ru/articles/222569/ | Article | "Синтез-2 — отечественный клон ZX-Spectrum"; source of the 1920×1278 board photo (`reference/photos/sintez2-board-habr.jpg`) and rear-panel shot. |
+| https://zx-pk.ru/threads/27280-remont-sintez-2.html | Forum | "Ремонт Синтез 2"; text corroborates D39–D42 / КР1533КП12 / ИР16; 27128 ROM → W27C512 flash. |
+| https://zx-pk.ru/archive/index.php/t-240.html | Forum | Sintez-2 schematic/repair; 128K mod lifts 3 pins of the КП12 A14/A15 mux. |
+| https://priborazbor.ru/sintez-2-sintez-evm-kompyuter-igrovoj/ | Page | Scrap/teardown; rough IC count (~18 DRAM + 17 155/1533 + Z80 + 17 КТ315) and a 696px top-view board photo. |
+
+> Reachability note (this environment): image CDNs (habrastorage, wp.com,
+> zx-pk attachments) are fetchable; **web.archive.org and archive.ph are blocked**
+> by the egress policy. No higher-res board photo than 1920px exists online.
+
 ## Reproducing the renders
 
 PDFs render with PyMuPDF (no poppler needed):
