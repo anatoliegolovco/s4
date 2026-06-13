@@ -58,4 +58,6 @@ Rules: append, don't rewrite; English only; `kebab-case` names. Full rules in
 | --- | --- | --- |
 | inception | [Project charter & hard constraints](./inception/project-charter.md) | 2026-06-13 |
 | tooling | [KiCad schematic automation strategy](./tooling/schematic-automation-strategy.md) | 2026-06-13 |
+| sourcing | [Datasheet collection](./sourcing/datasheet-collection.md) | 2026-06-13 |
+| sourcing | [Reference-materials intake](./sourcing/reference-materials-intake.md) | 2026-06-13 |
 | project-setup | [Documentation & ledger structure](./project-setup/documentation-structure.md) | 2026-06-13 |

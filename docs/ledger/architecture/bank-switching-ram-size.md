@@ -22,6 +22,19 @@ and run standard software. Optional extension: 128 KB (ZX-128-like paging) or
 more. Recommendation: ship **48K faithful first**; treat banked RAM as an
 opt-in later variant so it doesn't complicate the initial fidelity validation.
 
+### 2026-06-13T11:31:15Z — claude
+
+New evidence: the owner supplied a ©1997 PREDATOR/FAST Group writeup,
+**"Расширение памяти Синтеза-2 до 128 кб"** (`reference/photos/sintez128.jpg`),
+documenting a real **128 KB expansion** for this exact machine via **port
+`#7FFD` paging** (ZX-128 style). Mod chips: К555ТМ9 (≈74LS175 paging latch),
+К1533КП11 (≈74ALS257 mux), К555ЛЛ1 (≈74LS32), К1533ЛА3 (≈74ALS00). This makes
+128 KB the natural, historically-attested banked variant.
+
+Refined recommendation: **48 K stock as the faithful baseline** (first build,
+boot-to-`©` validation), with the **#7FFD 128 KB expansion as the documented
+opt-in variant** modeled from this writeup. Decision still pending owner sign-off.
+
 ## Outcome
 
-<!-- pending; default to 48K for the first build -->
+<!-- pending owner sign-off: 48K baseline + optional #7FFD 128K variant -->

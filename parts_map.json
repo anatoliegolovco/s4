@@ -1,6 +1,6 @@
 {
-  "$schema_note": "Soviet part <-> modern part <-> KiCad symbol/footprint <-> SimulIDE class <-> timing. First-class artifact: drives both substitution (spec §3) and the KiCad<->SimulIDE bridge (spec §7). STUB — extend as parts are modeled.",
-  "version": 0,
+  "$schema_note": "Soviet part <-> modern part <-> KiCad symbol/footprint <-> SimulIDE class <-> timing. First-class artifact: drives both substitution (spec §3) and the KiCad<->SimulIDE bridge (spec §7). Parameters cited in docs/datasheets/README.md; values marked 'to confirm' are not yet from a primary datasheet.",
+  "version": 1,
   "classes": {
     "1": "Pure Boolean logic — zero state risk, free to swap to 74ALS/74HC",
     "2": "DRAM — high timing risk, model with real RU5 timing",
@@ -48,8 +48,8 @@
     },
     {
       "soviet": "К1533ИЕ7",
-      "modern": "74ALS-class counter",
-      "western_equiv": "74ALS counter",
+      "modern": "SN74ALS193 (4-bit up/down binary counter)",
+      "western_equiv": "74ALS193",
       "class": 1,
       "role": "Refresh address + H/V sync counters",
       "kicad_symbol": null,
@@ -59,15 +59,15 @@
       "status": "stub"
     },
     {
-      "soviet": "КП12",
-      "modern": "bus multiplexer (74xx equivalent)",
-      "western_equiv": "bus multiplexer",
+      "soviet": "КП12 (КР1533КП12)",
+      "modern": "SN74ALS253 (dual 4-to-1 mux, 3-state output)",
+      "western_equiv": "74ALS253",
       "class": 1,
-      "role": "CPU/video bus arbitration",
+      "role": "CPU/video bus arbitration (the 'crown jewel')",
       "kicad_symbol": null,
       "kicad_footprint": null,
       "simulide_class": "multiplexer",
-      "timing": {},
+      "timing": { "tpd_ns": 4 },
       "status": "stub"
     },
     {
@@ -79,8 +79,9 @@
       "kicad_symbol": null,
       "kicad_footprint": null,
       "simulide_class": "transistor (ngspice model for levels)",
-      "timing": { "notes": "emitter-follower; trimmer-calibrated per batch" },
-      "status": "stub"
+      "timing": { "notes": "emitter-follower; trimmer-calibrated per batch (R41-R60)" },
+      "params": { "hfe_min": 50, "vce_max_v": 35, "ic_max_ma_npn": 100, "ic_max_ma_pnp": 50, "ptot_mw": 150, "ft_mhz": 250, "note": "SCART mod uses 200 ohm sync resistor; 100 ohm loses color" },
+      "status": "confirmed"
     },
     {
       "soviet": "К5545АЗ",
@@ -93,6 +94,19 @@
       "simulide_class": "tone decoder",
       "timing": {},
       "status": "stub"
+    },
+    {
+      "soviet": "КР1818ВГ93",
+      "modern": "WD1793",
+      "western_equiv": "Western Digital WD1793 FDC",
+      "class": 1,
+      "role": "Floppy disk controller (TR-DOS / Beta Disk daughterboard)",
+      "kicad_symbol": null,
+      "kicad_footprint": null,
+      "simulide_class": "FDC (behavioral)",
+      "timing": {},
+      "source": "reference/photos/betadisk-original.png (board СМП59-96Г-16-2, 1989)",
+      "status": "confirmed"
     }
   ]
 }

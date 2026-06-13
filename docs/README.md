@@ -19,6 +19,8 @@ The canonical technical specification is
 | `docs/RULES.md` | Rules for writing and maintaining docs and the ledger. |
 | `docs/spec/` | Canonical technical specification. |
 | `docs/decisions/` | Decision records (ADR-style) for lasting choices. |
+| `docs/datasheets/` | Datasheet links + key parameters per part. |
+| `docs/references/` | Catalog of owner-supplied primary sources (in `reference/`). |
 | `docs/repo-layout.md` | The source-tree layout (spec §9) and deviations. |
 | `docs/templates/` | Reusable templates for docs, decisions, and ledger entries. |
 | `docs/ledger/` | Discussion ledger: timestamped Q&A grouped by topic. |
