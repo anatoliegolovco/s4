@@ -5,7 +5,8 @@
   "cross_check": "reference/schematics/sintez2-original.pdf (colorized redraw)",
   "extracted": "2026-06-13",
   "method": "visual transcription from 350 dpi tiles in schematics/tiles/ (grid r{row}c{col})",
-  "status": "DRAW — core blocks and most ICs identified; some gate-level sections and high designators (D37,D41,D49,D52+) not yet confirmed. Verify against the redraw and zx-pk.ru before authoring KiCad.",
+  "status": "v0.2 — cross-checked against the colorized vector redraw (schematics/tiles-color/), which prints exact part numbers and net names. Logic family confirmed К1533 (≈74ALS/F); registers К555ИР16/22/23 (LS); DRAM К565РУ5. Remaining gaps: a few high designators (D37,D49,D52+) and pin-level nets.",
+  "family_note": "Glue/counters/muxes = К1533 (74ALS/F). Shift/latch registers = К555ИР16/ИР22/ИР23 (keep LS timing). DRAM = К565РУ5. CPU labeled Z80A in the redraw.",
   "confidence_legend": "high = label read clearly; med = label partly inferred; low = guessed from context",
   "type_map": {
     "ЛН1":  { "western": "74LS04",  "fn": "hex inverter" },
@@ -39,8 +40,8 @@
     { "ref": "D10", "type": "ЛА4", "western": "74LS10", "block": "video-sync", "sections": ["D10.1","D10.2"], "confidence": "high", "tile": "r2c1/r1c1" },
     { "ref": "D11", "type": "ЛН1", "western": "74LS04", "block": "glue", "sections": ["D11.3"], "confidence": "med", "tile": "r1c2" },
     { "ref": "D12", "type": "ТМ2", "western": "74LS74", "block": "video/FLASH", "sections": ["D12.1","D12.3"], "confidence": "med", "tile": "r1c2/r3c1" },
-    { "ref": "D13", "type": "ЛН1", "western": "74LS04", "block": "video", "sections": ["D13.1","D13.2","D13.3"], "confidence": "med", "tile": "r1c2/r1c3/r2c1" },
-    { "ref": "D14", "type": "ЛЕ1", "western": "74LS02", "block": "video-sync", "sections": ["D14.2","D14.3","D14.4"], "confidence": "med", "tile": "r1c2/r2c1" },
+    { "ref": "D13", "type": "ЛИ1 (К1533ЛИ1)", "western": "74ALS08", "block": "dram-timing", "role": "generate /RAS and /CAS (D13.B,D13.C) with R15 470 + C5", "sections": ["D13.B","D13.C"], "confidence": "high", "tile": "r1c2", "color_tile": "zoom_dram", "notes": "redraw label corrects earlier ЛН1 guess" },
+    { "ref": "D14", "type": "ЛЕ1 (К1533ЛЕ1)", "western": "74ALS02", "block": "glue", "sections": ["D14.A","D14.B","D14.D"], "confidence": "high", "tile": "r1c2/r2c1", "color_tile": "c_r3c1", "notes": "redraw label D14B = K1533LE1 confirms NOR" },
     { "ref": "D15", "type": "ЛН1", "western": "74LS04", "block": "video", "sections": ["D15.1"], "confidence": "med", "tile": "r1c3" },
     { "ref": "D16", "type": "ЛН1", "western": "74LS04", "block": "video-sync", "confidence": "med", "tile": "r1c1" },
     { "ref": "D17", "type": "ЛА3", "western": "74ALS00", "block": "glue", "sections": ["D17.1","D17.2","D17.3","D17.4"], "confidence": "high", "tile": "r2c1/r3c1/r3c2" },
@@ -62,20 +63,20 @@
     { "ref": "D42", "type": "ИР23", "western": "74LS374", "block": "video-data", "role": "pixel/attribute data latch", "confidence": "high", "tile": "r2c3" },
     { "ref": "D43", "type": "ИР22", "western": "74LS373", "block": "video-data", "role": "data latch", "confidence": "high", "tile": "r2c3" },
     { "ref": "D44", "type": "ИР (RG)", "western": "74LS-series register (verify)", "block": "io/keyboard", "confidence": "low", "tile": "r3c3" },
-    { "ref": "D45", "type": "ИР16", "western": "74LS165 (used as color register)", "block": "color", "role": "RM/GM/GN/YM -> BR/GR/YR", "confidence": "med", "tile": "r1c3" },
+    { "ref": "D45", "type": "ИР16 (К555ИР16)", "western": "74LS165", "block": "color", "role": "color output register BM/RM/GM/YM -> BR/RR/GR/YR (Q0-Q3 pins 13/12/11/10)", "confidence": "high", "tile": "r1c3", "color_tile": "zoom_connector" },
     { "ref": "D46", "type": "КП12", "western": "74ALS253", "block": "color", "role": "color/attribute mux (YBM,YRM)", "confidence": "high", "tile": "r1c3" },
     { "ref": "D47", "type": "КП12", "western": "74ALS253", "block": "color", "role": "attribute mux (YGM,YM)", "confidence": "high", "tile": "r2c3" },
     { "ref": "D48", "type": "ИР22", "western": "74LS373", "block": "border", "role": "border colour register", "confidence": "med", "tile": "r2c3" },
     { "ref": "D50", "type": "buffer/АП (verify)", "western": "74LS244/245 (verify)", "block": "disk-addr", "role": "disk address buffer (AA8-AA14) with diodes D9..D16", "confidence": "low", "tile": "r2c3/r3c4" },
     { "ref": "D51", "type": "ИР22", "western": "74LS373", "block": "disk-data", "role": "data latch (D0-D7 -> Q0-Q7)", "confidence": "med", "tile": "r3c4" },
-    { "ref": "D61", "type": "ИР16", "western": "74LS165", "block": "pixel-chain", "role": "pixel shift register @14 MHz (KEEP LS)", "confidence": "med", "tile": "r1c3", "notes": "third shift register; spec text said D41 — physical board labels D39/D40/D61" }
+    { "ref": "D41", "type": "ИР16 (К555ИР16)", "western": "74LS165", "block": "pixel-chain", "role": "third pixel shift register @14 MHz (KEEP LS)", "confidence": "high", "tile": "r1c3", "color_tile": "zoom_connector", "notes": "redraw label D41 = K555IR16 confirms spec; earlier scan read 'D61' was a misread" }
   ],
   "custom_modules": [
-    { "ref": "УС-1", "role": "analog output module — VT1 КТ315 emitter follower (R27/R28/R29 820)", "block": "tape/sync", "tile": "r3c3" },
-    { "ref": "УС-2", "role": "custom module (bus/line, verify)", "tile": "r3c3/r3c4" },
-    { "ref": "УС-3", "role": "custom module (bus/line, verify)", "tile": "r3c4" },
-    { "ref": "УС-4", "role": "custom module (bus/line, verify)", "tile": "r3c4" },
-    { "ref": "УС-5", "role": "custom module (bus/line, verify)", "tile": "r3c4" }
+    { "ref": "УС-1 (YC-1)", "role": "analog line-driver module — one transistor (КТ315) + resistors", "block": "analog-buffers", "tile": "r3c3", "color_tile": "c_r2c3", "notes": "redraw labels these YC-1..YC-5: five identical single-transistor driver/buffer blocks" },
+    { "ref": "УС-2 (YC-2)", "role": "analog line-driver module (identical to YC-1)", "block": "analog-buffers", "color_tile": "c_r2c3" },
+    { "ref": "УС-3 (YC-3)", "role": "analog line-driver module (identical)", "block": "analog-buffers", "color_tile": "c_r2c3" },
+    { "ref": "УС-4 (YC-4)", "role": "analog line-driver module (identical)", "block": "analog-buffers", "color_tile": "c_r2c3" },
+    { "ref": "УС-5 (YC-5)", "role": "analog line-driver module (identical)", "block": "analog-buffers", "color_tile": "c_r2c3" }
   ],
   "discretes": {
     "transistors": "VT1 (КТ315 in УС-1); VT3-VT12 RGB drivers, VT13-VT18 region (КТ315Г NPN / КТ361Г PNP) — RGB output stage",
@@ -85,10 +86,9 @@
     "note": "Full passive transcription pending; ladder values feed the ngspice RGB model and the 200-ohm sync note (reference/pinouts/video-pinout.png)"
   },
   "gaps_to_resolve": [
-    "Confirm exact types for D11,D13,D14 sections (ЛН1 vs ЛЕ1 vs ЛА).",
-    "Designators not yet seen: D29-D35 are within the RAM group; D37,D41,D49,D52-D60 unread or absent.",
-    "D5/D45 КП12-vs-ИР16 ambiguity; D44/D50/D51 exact types.",
-    "ИЕ10 western mapping (D31 region).",
+    "RESOLVED via redraw: family=К1533; D13=ЛИ1(RAS/CAS); D14=ЛЕ1; D41(not D61)=ИР16; D45=ИР16 color reg; D46/D47=КП12.",
+    "Still open: exact types for D11 section; D37,D49,D52+ (read remaining color tiles c_r2c2/c_r3c2/c_r3c4 at high zoom).",
+    "D44/D50/D51 exact types; ИЕ10 western mapping (D31 region).",
     "Read remaining rows of the 'Питание микросхем' power table for the full IC inventory + power pins."
   ]
 }

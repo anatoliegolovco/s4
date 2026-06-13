@@ -42,11 +42,29 @@ annotated next to each symbol. Segmented the sheet into a 3×4 grid at 350 DPI,
   Pin-accurate intra-block nets flagged as the next pass.
 - Pipeline documented in `docs/schematic-extraction.md`.
 
+### 2026-06-13T13:18:41Z — user
+
+Asked whether the **color schematic** (the redraw whose netlist uses color
+codes) was captured too — it needs its own tiling + extraction.
+
+### 2026-06-13T13:40:00Z — claude
+
+It had not been tiled. The redraw `sintez2-original.pdf` is a **vector** file:
+text is outlined (not selectable) but strokes are color-coded — **dark-red =
+parts/pins, blue = net-name labels, other colors = wire groups**. Tiled it (4×3
+@400 dpi) into `schematics/tiles-color/`, rendered **per-color layer
+separations** (`layers/`) as a net-tracing aid, and high-zoom crops (`zoom/`).
+The redraw prints exact part numbers and names nets, so it is now the **primary**
+source; the scan is the cross-check. Bumped BOM/wiring to **v0.2** with
+corrections: family **К1533** (registers К555ИР16/22/23, DRAM К565РУ5, CPU
+Z80A); **D41** (not "D61") is the 3rd shift register; **D13 = ЛИ1** makes
+/RAS+/CAS; **D14 = ЛЕ1**; **D45 = ИР16**, **D46/D47 = КП12**; **X8** 64-pin bus
+pinout high-confidence; **УС-1…5 = YC-1…5** analog driver modules.
+
 ## Outcome
 
 <!-- in progress -->
-BOM v0.1 and wiring v0.1 captured as the canonical text intermediate. Remaining:
-trace pin-level nets per block (cpu → decode → dram → arbitration, per T2/T3),
-resolve low-confidence connector pins against the redraw, and finish the IC
-power table. Each completed block gets `status: done` and is fed to
-`bridge/net2sim.py`.
+BOM **v0.2** and wiring **v0.2** captured (both source documents tiled & extracted).
+Remaining: trace pin-level nets per block (cpu → decode → dram → arbitration, per
+T2/T3) using the color layers, complete the X8 lower-row pins and the IC power
+table. Each completed block gets `status: done` and is fed to `bridge/net2sim.py`.

@@ -53,6 +53,26 @@ pin-level nets are tracked in `wiring.json`'s per-block `status`.
       К555ТМ9 / К1533КП11 / К555ЛЛ1 / К1533ЛА3 (`reference/photos/sintez128.jpg`).
       Opt-in variant — see `docs/ledger/architecture/bank-switching-ram-size.md`.
 
+## Two source documents
+
+- **Scan** `reference/schematics/sintez2-schematic.pdf` — authoritative original;
+  carries the connector + power tables. Tiled in `schematics/tiles/`.
+- **Colorized vector redraw** `reference/schematics/sintez2-original.pdf` — cleaner,
+  **names nets and prints exact part numbers**. Tiled in `schematics/tiles-color/`
+  (+ `layers/` per-color separations, + `zoom/` high-zoom crops). **Primary**
+  net-naming source; the scan is the cross-check. Color code: dark-red=parts,
+  blue=net labels, other colors=wire groups.
+
+## Redraw cross-check corrections (v0.2)
+
+- Logic family is **К1533** (≈74ALS/F); registers **К555ИР16/ИР22/ИР23** (keep LS);
+  DRAM **К565РУ5**; CPU labeled **Z80A**.
+- **D41** (not "D61") is the 3rd pixel shift register (К555ИР16) — matches spec.
+- **D13 = К1533ЛИ1** generates **/RAS** and **/CAS** (R15 470 + C5).
+- **D14 = К1533ЛЕ1** (NOR). **D45 = К555ИР16** color register; **D46/D47 = К1533КП12**.
+- **X8** is a 64-pin expansion bus, pinout now high-confidence (`tiles-color/zoom/zoom_x8.png`).
+- **УС-1…УС-5 = YC-1…YC-5**: five identical single-transistor analog driver modules.
+
 ## BOM & wiring — structured outputs
 
 - `schematics/bom.json` — every identified package (ref → Soviet type → western
