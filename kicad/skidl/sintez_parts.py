@@ -95,6 +95,23 @@ K1533LA4 = _dip("K1533LA4", "Package_DIP:DIP-14_W7.62mm", [
     (11, "3C", I), (12, "1C", I), (13, "1Y", O), (14, "VCC", PWR),
 ], value="К1533ЛА4 (74ALS10)")
 
+# К1533ЛИ1 = 74LS08 quad 2-input AND, DIP-14.
+K1533LI1 = _dip("K1533LI1", "Package_DIP:DIP-14_W7.62mm", [
+    (1, "1A", I), (2, "1B", I), (3, "1Y", O), (4, "2A", I), (5, "2B", I),
+    (6, "2Y", O), (7, "GND", PWR), (8, "3Y", O), (9, "3A", I), (10, "3B", I),
+    (11, "4Y", O), (12, "4A", I), (13, "4B", I), (14, "VCC", PWR),
+], value="К1533ЛИ1 (74LS08)")
+
+# К565РУ5 = 4164 64Kx1 DRAM, DIP-16 (standard 4164 pin functions; power 8/16 per
+# the 'Питание' table). Address-pin names follow the schematic's A0..A7 labels;
+# their VA-net mapping (per chip) is applied in sintez2.py from wiring.json.
+K565RU5 = _dip("K565RU5", "Package_DIP:DIP-16_W7.62mm", [
+    (1, "NC", NC), (2, "DIN", I), (3, "~WE", I), (4, "~RAS", I),
+    (5, "A6", I), (6, "A4", I), (7, "A2", I), (8, "VCC", PWR),
+    (9, "A0", I), (10, "A1", I), (11, "A3", I), (12, "A5", I), (13, "A7", I),
+    (14, "DOUT", TRI), (15, "~CAS", I), (16, "GND", PWR),
+], value="К565РУ5 (4164)")
+
 # ---------------------------------------------------------------- passives
 def R(value):
     return Part(name="R", tool="skidl", dest=TEMPLATE, ref_prefix="R",

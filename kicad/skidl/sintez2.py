@@ -92,6 +92,38 @@ d9["1A"]  += MREQ;  d9["1Y"]  += mreq_h                           # inverter
 d17["1A"] += rom_region; d17["1B"] += mreq_h; d17["1Y"] += rom_ce_n  # NAND -> ~ROMCS
 RD += rom_oe_n                     # ROM /OE follows CPU /RD
 
+# ---- block 3: DRAM array (D28-D35 К565РУ5) + /RAS/CAS (D13) ----------------
+# 8x К565РУ5 (4164), 1 bit each = 64 KB. All chips share the multiplexed address
+# bus VA0-VA7, /RAS, /CAS, /WE; they differ only in DIN/DOUT (one data bit each).
+# Address-pin -> VA-net map is the one extracted into schematics/wiring.json
+# (dram_addr_map, from the colour tile gap_bot_center).
+VA = [Net(f"VA{i}") for i in range(8)]     # multiplexed row/col addr (driven by D24/D25 КП12, block 4)
+DD = [Net(f"DD{i}") for i in range(8)]     # DRAM data-out -> D43 latch (block 6)
+ras_n = Net("~RAS"); cas_n = Net("~CAS"); we_n = Net("~WE")
+
+# Per-chip address pin (by its schematic A-label) -> VA net:
+ADDR_MAP = {"A0": 7, "A1": 5, "A2": 1, "A3": 4, "A4": 2, "A5": 3, "A6": 0, "A7": 6}
+
+for bit in range(8):
+    ru = P.K565RU5(ref=f"D{28 + bit}")
+    ru["VCC"] += vcc; ru["GND"] += gnd
+    ru["~RAS"] += ras_n; ru["~CAS"] += cas_n; ru["~WE"] += we_n
+    for apin, va in ADDR_MAP.items():
+        ru[apin] += VA[va]
+    ru["DIN"]  += D[bit]      # CPU data bus -> DRAM (write path)
+    ru["DOUT"] += DD[bit]     # DRAM -> read latch D43 (block 6)
+
+# /WE follows the CPU write strobe (functional; gating to verify vs scan).
+WR += we_n
+
+# D13 К1533ЛИ1 (AND) generates /RAS and /CAS from the memory-cycle timing strobes
+# (R15 470 + C5 set the RAS->CAS delay). Timing-strobe inputs come from the
+# arbitration/sync block (block 4/5) — named nets for now. FUNCTIONAL.
+d13 = P.K1533LI1(ref="D13"); d13["VCC"] += vcc; d13["GND"] += gnd
+ras_stb = Net("RAS_STB"); cas_stb = Net("CAS_STB"); mem_stb = Net("MEM_STB")
+d13["2A"] += mem_stb; d13["2B"] += ras_stb; d13["2Y"] += ras_n   # -> /RAS
+d13["3A"] += mem_stb; d13["3B"] += cas_stb; d13["3Y"] += cas_n   # -> /CAS
+
 # ---- 14 MHz clock oscillator (Z1 + D1 К1533ЛН1 inverters, R1/R2 470, C1 330p)
 # Classic 2-inverter crystal oscillator; output CLK14 feeds the /4 divider.
 z1   = P.XTAL("14MHz")(ref="Z1")
