@@ -1,0 +1,50 @@
+ERC WARNING: Only one pin (TRISTATE pin 36/A6 of Z84C00/D6) attached to net A6.
+ERC WARNING: Only one pin (TRISTATE pin 22/~WR of Z84C00/D6) attached to net ~WR.
+ERC WARNING: Only one pin (OUTPUT pin 28/~RFSH of Z84C00/D6) attached to net ~RFSH.
+ERC WARNING: Only one pin (TRISTATE pin 35/A5 of Z84C00/D6) attached to net A5.
+ERC WARNING: Only one pin (TRISTATE pin 31/A1 of Z84C00/D6) attached to net A1.
+ERC WARNING: Only one pin (BIDIRECTIONAL pin 12/D2 of Z84C00/D6) attached to net D2.
+ERC WARNING: Only one pin (TRISTATE pin 38/A8 of Z84C00/D6) attached to net A8.
+ERC WARNING: Only one pin (OUTPUT pin 27/~M1 of Z84C00/D6) attached to net ~M1.
+ERC WARNING: Only one pin (TRISTATE pin 30/A0 of Z84C00/D6) attached to net A0.
+ERC WARNING: Only one pin (TRISTATE pin 32/A2 of Z84C00/D6) attached to net A2.
+ERC WARNING: Only one pin (BIDIRECTIONAL pin 15/D1 of Z84C00/D6) attached to net D1.
+ERC WARNING: Only one pin (BIDIRECTIONAL pin 10/D6 of Z84C00/D6) attached to net D6.
+ERC WARNING: Only one pin (BIDIRECTIONAL pin 13/D7 of Z84C00/D6) attached to net D7.
+ERC WARNING: Only one pin (TRISTATE pin 39/A9 of Z84C00/D6) attached to net A9.
+ERC WARNING: Only one pin (BIDIRECTIONAL pin 14/D0 of Z84C00/D6) attached to net D0.
+ERC WARNING: Insufficient drive current on net GND for pin POWER-IN pin 7/GND of K1533LN1/D1.
+ERC WARNING: Insufficient drive current on net GND for pin POWER-IN pin 29/GND of Z84C00/D6.
+ERC WARNING: Insufficient drive current on net +5V for pin POWER-IN pin 11/VCC of Z84C00/D6.
+ERC WARNING: Insufficient drive current on net +5V for pin POWER-IN pin 14/VCC of K1533LN1/D1.
+ERC WARNING: Only one pin (OUTPUT pin 2/A12 of Z84C00/D6) attached to net A12.
+ERC WARNING: Only one pin (TRISTATE pin 19/~MREQ of Z84C00/D6) attached to net ~MREQ.
+ERC WARNING: Only one pin (TRISTATE pin 33/A3 of Z84C00/D6) attached to net A3.
+ERC WARNING: Only one pin (TRISTATE pin 37/A7 of Z84C00/D6) attached to net A7.
+ERC WARNING: Only one pin (OUTPUT pin 5/A15 of Z84C00/D6) attached to net A15.
+ERC WARNING: Only one pin (BIDIRECTIONAL pin 9/D5 of Z84C00/D6) attached to net D5.
+ERC WARNING: Only one pin (BIDIRECTIONAL pin 8/D3 of Z84C00/D6) attached to net D3.
+ERC WARNING: Only one pin (TRISTATE pin 20/~IORQ of Z84C00/D6) attached to net ~IORQ.
+ERC WARNING: Only one pin (INPUT pin 6/CLK of Z84C00/D6) attached to net CLK.
+ERC WARNING: No drivers for net CLK.
+ERC WARNING: Insufficient drive current on net CLK for pin INPUT pin 6/CLK of Z84C00/D6.
+ERC WARNING: Only one pin (OUTPUT pin 1/A11 of Z84C00/D6) attached to net A11.
+ERC WARNING: Only one pin (TRISTATE pin 21/~RD of Z84C00/D6) attached to net ~RD.
+ERC WARNING: Only one pin (OUTPUT pin 3/A13 of Z84C00/D6) attached to net A13.
+ERC WARNING: Only one pin (TRISTATE pin 34/A4 of Z84C00/D6) attached to net A4.
+ERC WARNING: Only one pin (TRISTATE pin 40/A10 of Z84C00/D6) attached to net A10.
+ERC WARNING: Only one pin (OUTPUT pin 4/A14 of Z84C00/D6) attached to net A14.
+ERC WARNING: Only one pin (BIDIRECTIONAL pin 7/D4 of Z84C00/D6) attached to net D4.
+ERC WARNING: Unconnected pin: OUTPUT pin 18/~HALT of Z84C00/D6.
+ERC WARNING: Unconnected pin: OUTPUT pin 23/~BUSAK of Z84C00/D6.
+ERC WARNING: Unconnected pin: INPUT pin 5/3A of K1533LN1/D1.
+ERC WARNING: Unconnected pin: OUTPUT pin 6/3Y of K1533LN1/D1.
+ERC WARNING: Unconnected pin: OUTPUT pin 8/4Y of K1533LN1/D1.
+ERC WARNING: Unconnected pin: INPUT pin 9/4A of K1533LN1/D1.
+ERC WARNING: Unconnected pin: OUTPUT pin 10/5Y of K1533LN1/D1.
+ERC WARNING: Unconnected pin: INPUT pin 11/5A of K1533LN1/D1.
+ERC WARNING: Unconnected pin: OUTPUT pin 12/6Y of K1533LN1/D1.
+ERC WARNING: Unconnected pin: INPUT pin 13/6A of K1533LN1/D1.
+ERC INFO: 47 warnings found while running ERC.
+ERC INFO: 0 errors found while running ERC.
+
