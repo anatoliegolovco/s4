@@ -16,3 +16,9 @@ build/
 
 # python venv
 .venv/
+
+# SKiDL build artifacts
+*.erc
+*.log
+*_sklib.py
+skidl_*
