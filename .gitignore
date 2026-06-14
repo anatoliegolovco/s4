@@ -22,3 +22,5 @@ build/
 *.log
 *_sklib.py
 skidl_*
+kicad/skidl/*.svg
+kicad/skidl/*.json

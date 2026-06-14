@@ -21,3 +21,10 @@ truth for the PCB.
 `schematics/` · `kicad/` · `bridge/` · `sim/` · `llm/` · `cpu/` · `tests/` ·
 `parts_map.json` — all currently skeletons, populated per milestones T0–T9 in
 the spec. All Markdown lives under `docs/` (project rule).
+
+## License
+
+**Proprietary and confidential — © 2026 Lightcypher SRL. All rights reserved.**
+This is **not** open-source software. See [`LICENSE`](./LICENSE). Third-party
+tools (KiCad, SimulIDE, ngspice, SKiDL) keep their own licenses; mirrored
+datasheets/scans under `reference/` belong to their respective owners.

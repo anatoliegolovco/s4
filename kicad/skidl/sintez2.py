@@ -14,11 +14,17 @@ without a second endpoint yet read as unconnected in ERC (expected).
 """
 
 import os
-from skidl import Net, generate_netlist, ERC
+# make netlistsvg (npm, under nvm) findable for generate_svg()
+_node_bin = os.path.expanduser("~/.nvm/versions/node/v22.16.0/bin")
+if os.path.isdir(_node_bin):
+    os.environ["PATH"] = _node_bin + os.pathsep + os.environ.get("PATH", "")
+
+from skidl import Net, generate_netlist, generate_svg, ERC
 import sintez_parts as P
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 NETLIST = os.path.join(HERE, "..", "sintez2.net")
+SVG = os.path.join(HERE, "sintez2")   # generate_svg appends .svg
 
 # ---- power rails -----------------------------------------------------------
 vcc = Net("+5V");  vcc.drive = 7      # POWER drive so ERC is satisfied
@@ -101,4 +107,9 @@ for ref, net in zip(("R4", "R5", "R6", "R7"), (int_n, nmi_n, busrq_n, wait_n)):
 # ---- generate outputs ------------------------------------------------------
 ERC()   # prints its own '<n> errors / <n> warnings found' summary
 generate_netlist(file_=NETLIST)
+try:
+    generate_svg(file_=SVG)          # live schematic for the viewer.html "movie"
+    print(f"svg     -> {os.path.normpath(SVG)}.svg")
+except Exception as e:
+    print(f"svg skipped ({e})")
 print(f"netlist -> {os.path.normpath(NETLIST)}")

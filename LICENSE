@@ -1,0 +1,31 @@
+Copyright © 2026 Lightcypher SRL. All rights reserved.
+
+PROPRIETARY AND CONFIDENTIAL
+
+This repository and its contents (the "Software") — including the design
+sources, schematics, bill-of-materials, netlists, documentation, scripts, and
+all other original material herein — are the proprietary and confidential
+property of Lightcypher SRL.
+
+No part of the Software may be copied, reproduced, modified, published,
+distributed, sublicensed, sold, or disclosed to any third party, in whole or in
+part, by any means, without the prior written permission of Lightcypher SRL.
+
+Unauthorized use, reproduction, or distribution is strictly prohibited and may
+result in civil and criminal penalties.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+FOR A PARTICULAR PURPOSE, AND NONINFRINGEMENT. IN NO EVENT SHALL LIGHTCYPHER SRL
+BE LIABLE FOR ANY CLAIM, DAMAGES, OR OTHER LIABILITY ARISING FROM, OUT OF, OR IN
+CONNECTION WITH THE SOFTWARE OR ITS USE.
+
+---
+
+Third-party materials retain their own licenses and are not covered by the above:
+
+- Tools used by this project (KiCad — GPL v3; SimulIDE — AGPL v3; ngspice;
+  SKiDL; netlistsvg) remain under their respective open-source licenses.
+- Datasheets, manufacturer documents, and reference scans referenced or mirrored
+  under reference/ and docs/ remain the property of their respective owners and
+  are included for research and interoperability purposes only.

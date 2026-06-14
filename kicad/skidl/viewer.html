@@ -1,0 +1,31 @@
+<!doctype html>
+<!-- Live view of the SKiDL-generated Sintez-2 schematic.
+     Auto-reloads sintez2.svg every 2 s so you can watch the design grow
+     block by block as kicad/skidl/sintez2.py is re-run. Open with:
+       xdg-open kicad/skidl/viewer.html  -->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Sintez-2 — live schematic (SKiDL)</title>
+  <style>
+    html,body{margin:0;background:#0b0e14;color:#9aa4b2;font:14px/1.4 monospace;height:100%}
+    header{padding:8px 14px;background:#11151f;border-bottom:1px solid #1d2433}
+    header b{color:#e6edf3}
+    #wrap{position:absolute;top:42px;bottom:0;left:0;right:0;overflow:auto;text-align:center}
+    img{max-width:98%;background:#fff;margin:12px;border-radius:6px;box-shadow:0 4px 24px #0008}
+    #ts{color:#5a6473}
+  </style>
+</head>
+<body>
+  <header><b>Sintez-2</b> — live SKiDL schematic · proprietary © Lightcypher SRL · <span id="ts"></span></header>
+  <div id="wrap"><img id="sch" alt="generating…"></div>
+  <script>
+    function refresh(){
+      const img=document.getElementById('sch');
+      img.src='sintez2.svg?'+Date.now();           // cache-bust
+      document.getElementById('ts').textContent='refreshed '+new Date().toLocaleTimeString();
+    }
+    refresh(); setInterval(refresh,2000);
+  </script>
+</body>
+</html>
