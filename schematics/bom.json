@@ -35,7 +35,7 @@
     { "ref": "D2",  "type": "ИЕ7", "western": "74ALS193", "block": "video-sync", "role": "horizontal counter (СТ2)", "confidence": "high", "tile": "r1c1" },
     { "ref": "D3",  "type": "ИЕ7", "western": "74ALS193", "block": "video-sync", "role": "vertical counter low (V0-V3)", "confidence": "high", "tile": "r2c1" },
     { "ref": "D4",  "type": "ИЕ7", "western": "74ALS193", "block": "video-sync", "role": "vertical counter high (V4-V7)", "confidence": "high", "tile": "r2c1" },
-    { "ref": "D5",  "type": "КП12 (К1533КП12)", "western": "74ALS253", "block": "video-fetch-addr", "role": "mux generating video-address bits K8/K9/K11/K12 from the V-counters (V0-V7)", "confidence": "high", "tile": "r2c1", "color_tile": "gap_bot_left" },
+    { "ref": "D5",  "type": "КП11 (К1533КП11)", "western": "74ALS257", "block": "video-fetch-addr", "role": "quad 2:1 mux generating video-address bits K8/K9/K11/K12 from the V-counters (V0-V7); K10 from D7B", "confidence": "high", "tile": "r2c1", "color_tile": "gap_bot_left", "notes": "CORRECTED 2026-06-14 (trace-verify workflow): schematic labels D5 'К1533КП11' (quad 2:1 mux, 74257), NOT КП12. Earlier BOM was wrong." },
     { "ref": "D6",  "type": "Z80 CPU", "western": "Zilog Z80 (board photo shows imported Zilog Z8400 ceramic; Soviet drop-in КР1858ВМ1)", "block": "cpu", "power": { "+5V": 11, "GND": 29 }, "confidence": "high", "tile": "r3c1", "photo": "reference/photos/sintez2-board-habr.jpg", "notes": "power-table pins 11/29 confirm Z80 DIP-40; board photo confirms a Zilog Z8400" },
     { "ref": "D7",  "type": "ЛИ1", "western": "74LS08", "block": "glue", "sections": ["D7.1","D7.2"], "confidence": "high", "tile": "r1c1/r3c1" },
     { "ref": "D8",  "type": "ТМ2", "western": "74LS74", "block": "video-sync", "sections": ["D8.1","D8.2"], "confidence": "high", "tile": "r1c1" },
@@ -83,9 +83,10 @@
     { "ref": "УС-5 (YC-5)", "role": "analog line-driver module (identical)", "block": "analog-buffers", "color_tile": "c_r2c3" }
   ],
   "discretes": {
-    "transistors": "VT1 (КТ315 in УС-1); VT3-VT12 RGB drivers, VT13-VT18 region (КТ315Г NPN / КТ361Г PNP) — RGB output stage",
+    "transistors": "VT1 (КТ315 in УС-1); VT2/VT13 КТ315 (BEEP speaker push-pull); VT3-VT12 (КТ315Г NPN / КТ361Г PNP) = RGB output stage drivers. NOTE 2026-06-14: VT13-VT18 NOT found in the RGB region (trace-verify); the RGB drivers are VT3-VT12. VT13 is the beep driver.",
     "diodes": "VD3-VD8 RGB ladder, VD17 sync, VD4-VD7 video, D9..D16 disk-address diodes",
-    "key_resistors": "R1/R2 470, C1 330; R3 820 (clock); R10 5.1k + C2 10uF (reset); R4/R5 5.1k pull-ups; R11/R72 270; R12 3k; RGB ladder R41 620/R42 1.8k/R47 270/R48 620/R49 1k/R54 620/R55 1.8k/R60 820/R63 5.1k; tape R30/R31 3k, R32 5.1k; sync R66 470/R67 820/R68 820",
+    "key_resistors": "R1/R2 470, C1 330; R3 820 (clock); R10 5.1k + C2 10uF (reset); R4-R9 5.1k pull-ups; R11/R72 270; R12 3k; RGB ladder R41 620/R42 1.8k/R45/R47 270/R48 620/R49 1.8k/R54 620/R55 1.8k/R60 820/R63 5.1k + R43/R50 33k (channel input pulldowns); tape R30/R31 3k, R32 5.1k, R33 33k; sync R66 470/R67 820/R68 820",
+    "_corrections_2026-06-14": "trace-verify workflow: R49 is 1.8K (schematic reads '1,8K'), not 1k. RGB drivers are VT3-VT12 (VT13-VT18 NOT found in the RGB region — earlier 'VT13-VT18' was unconfirmed). B/G channel input pulldowns ~33k (R43 shown as 'R?', VD8 as 'VD?' on the silkscreen). Net 'a' (red global label) = GND.",
     "decoupling": "C12...C36 = 25x 0.15uF; CH 200pF (sync)",
     "note": "Full passive transcription pending; ladder values feed the ngspice RGB model and the 200-ohm sync note (reference/pinouts/video-pinout.png)"
   },
