@@ -42,7 +42,10 @@ The generated `*.net` is a build artifact (gitignored) — regenerate from the P
       CPU/video bit → which 4:1 input, + select/enable timing) is deliberately NOT
       guessed — it must be traced pin-by-pin from the scan (most intricate logic on
       the board). VA6/VA7 source + D26 paging + D38 latch nets also pending.
-- [ ] Block 5 — video sync (D2/D3/D4/D19 ИЕ7, D8/D21 ТМ2) + /4 CPU-clock divider.
+- [~] **Block 5 — /4 CPU-clock divider + sync counters.** D8 ТМ2 ripple-divides
+      CLK14 → 7 MHz (dot) → 3.5 MHz **CLK** (resolves the CPU clock; was undriven).
+      D2/D19 (H) + D3/D4 (V) ИЕ7 counters placed/powered/clocked + cascaded.
+      ⚠ H/V sync DECODE (counter bits → HSYNC/VSYNC/blank via D10/D14/D21) functional/TODO.
 - [ ] Block 6 — pixel chain (D39/D40/D41 ИР16) + colour (D42–D48) + RGB out.
 - [ ] Block 7 — tape/audio (D49 К544СА3, beep) + disk I/O (D44/D50/D51) + connectors.
 

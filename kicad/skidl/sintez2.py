@@ -175,6 +175,33 @@ d1["2A"] += osc_mid
 d1["2Y"] += clk14
 r2[1] += osc_mid; r2[2] += clk14
 
+# ---- block 5: /4 CPU-clock divider + video-sync counters -------------------
+# CLK14 (14 MHz) -> /2 -> 7 MHz (pixel/dot) -> /2 -> 3.5 MHz CPU clock.
+# Two toggling D-FFs of D8 К1533ТМ2 form the ripple /4 (each FF: D<-/Q). This
+# resolves the CPU CLK net (was undriven). Set/reset tied inactive (high).
+d8 = P.K1533TM2(ref="D8"); d8["VCC"] += vcc; d8["GND"] += gnd
+clk7 = Net("CLK7")                     # 7 MHz dot clock (= CLK14/2)
+d8["~1S"] += vcc; d8["~1R"] += vcc; d8["~2S"] += vcc; d8["~2R"] += vcc
+d8["1C"] += clk14; d8["1D"] += d8["~1Q"]; d8["1Q"] += clk7        # /2 -> 7 MHz
+d8["2C"] += clk7;  d8["2D"] += d8["~2Q"]; d8["2Q"] += clk_cpu     # /2 -> 3.5 MHz = CLK
+
+# Video-sync counters (D2/D19 horizontal, D3/D4 vertical = К1533ИЕ7). Placed +
+# powered + clocked from the dot clock; the H/V sync DECODE (which counter bits
+# gate HSYNC/VSYNC/blank via D10/D14/D21) is FUNCTIONAL/TODO — to trace from scan.
+hcount = [Net(f"H{i}") for i in range(8)]
+vcount = [Net(f"V{i}") for i in range(8)]
+d2  = P.K1533IE7(ref="D2");  d2["VCC"]  += vcc; d2["GND"]  += gnd
+d19 = P.K1533IE7(ref="D19"); d19["VCC"] += vcc; d19["GND"] += gnd
+d3  = P.K1533IE7(ref="D3");  d3["VCC"]  += vcc; d3["GND"]  += gnd
+d4  = P.K1533IE7(ref="D4");  d4["VCC"]  += vcc; d4["GND"]  += gnd
+# horizontal counter chain clocked by the dot clock; cascade via carry.
+d2["~CU"] += clk7
+for c, qs in ((d2, hcount[0:4]), (d19, hcount[4:8]), (d3, vcount[0:4]), (d4, vcount[4:8])):
+    c["QA"] += qs[0]; c["QB"] += qs[1]; c["QC"] += qs[2]; c["QD"] += qs[3]
+d19["~CU"] += d2["~CO"]      # H high nibble cascades off D2 carry
+d3["~CU"]  += d19["~CO"]     # V counter advances on H rollover (functional cascade)
+d4["~CU"]  += d3["~CO"]
+
 # ---- power-on reset (C2 10u + R10 5.1k) ------------------------------------
 c2 = P.C("10u")(ref="C2"); r10 = P.R("5.1k")(ref="R10")
 c2[1] += reset_n; c2[2] += gnd

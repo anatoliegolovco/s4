@@ -130,6 +130,15 @@ KR1533IR27 = _dip("KR1533IR27", "Package_DIP:DIP-20_W7.62mm", [
     (16, "7Q", O), (17, "7D", I), (18, "8D", I), (19, "8Q", O), (20, "VCC", PWR),
 ], value="КР1533ИР27 (74273)")
 
+# К1533ИЕ7 = 74193 4-bit up/down binary counter, DIP-16. Used for H/V sync +
+# DRAM refresh address counting.
+K1533IE7 = _dip("K1533IE7", "Package_DIP:DIP-16_W7.62mm", [
+    (1, "B", I), (2, "QB", O), (3, "QA", O), (4, "~CD", I), (5, "~CU", I),
+    (6, "QC", O), (7, "QD", O), (8, "GND", PWR), (9, "D", I), (10, "C", I),
+    (11, "~LOAD", I), (12, "~CO", O), (13, "~BO", O), (14, "CLR", I), (15, "A", I),
+    (16, "VCC", PWR),
+], value="К1533ИЕ7 (74193)")
+
 # ---------------------------------------------------------------- passives
 def R(value):
     return Part(name="R", tool="skidl", dest=TEMPLATE, ref_prefix="R",
