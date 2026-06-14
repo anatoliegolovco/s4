@@ -25,7 +25,11 @@ The generated `*.net` is a build artifact (gitignored) — regenerate from the P
       reset RC C2/R10, control-input pull-ups R4–R7). Netlist generates, **0 ERC
       errors** (warnings are unconnected bus pins — expected until the blocks
       below are wired).
-- [ ] Block 2 — ROM (D36 27128) + address decode (D17/D22/D9/D10/D27/D37/D26).
+- [x] **Block 2a — ROM (D36 27128)** wired to the A0–A13 / D0–D7 buses + power
+      (VPP/PGM=VCC). Verified: A0=D6.30+D36.10 … D0=D6.14+D36.11; A14 CPU-only
+      (27128 is 16K). /CE,/OE are named decode nets pending the decode sub-block.
+- [ ] Block 2b — address decode logic (D17 ЛА3, D22 ЛЕ1, D9 ЛН1, D10/D27/D37 ЛА4,
+      D26 КП12) driving ~ROMCS / ~ROMOE / screen / I/O selects.
 - [ ] Block 3 — DRAM array (D28–D35 К565РУ5) + RAS/CAS (D13) + refresh.
 - [ ] Block 4 — bus arbitration (D5/D23–D26 КП12, D38 ИР27 latch).
 - [ ] Block 5 — video sync (D2/D3/D4/D19 ИЕ7, D8/D21 ТМ2) + /4 CPU-clock divider.

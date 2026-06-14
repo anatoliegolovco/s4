@@ -7,9 +7,10 @@ Incremental, block by block (spec §8 milestones T2/T3). Run:
     .venv/bin/python kicad/skidl/sintez2.py
 Outputs kicad/sintez2.net and prints the ERC summary.
 
-STATUS: block 1 of N — CPU + clock + reset + pull-ups (D6, Z1, D1, reset/clk RC).
-Address/data buses are created here and grow as ROM/DRAM/decode blocks are added;
-until then the Z80 bus pins read as unconnected in ERC (expected).
+STATUS: blocks 1-2 of N — CPU + clock + reset + pull-ups (D6, Z1, D1, RC); ROM
+(D36 27128) wired to the address/data buses + power. ROM /CE,/OE and the CPU CLK
+are named nets driven by decode/divider sub-blocks still to be traced. Bus pins
+without a second endpoint yet read as unconnected in ERC (expected).
 """
 
 import os
@@ -48,6 +49,22 @@ cpu["CLK"] += clk_cpu
 cpu["~RESET"] += reset_n
 cpu["~INT"] += int_n; cpu["~NMI"] += nmi_n
 cpu["~BUSRQ"] += busrq_n; cpu["~WAIT"] += wait_n
+
+# ---- ROM (D36) — 27128 16Kx8 EPROM, stock 48K Spectrum ROM -----------------
+# Read mode: VPP=PGM=VCC. /CE from address decode (ROM region 0x0000-0x3FFF),
+# /OE from the gated read strobe — both driven by the decode sub-block (TODO),
+# kept as named nets here (same pattern as CLK in block 1).
+rom = P.ROM27128(ref="D36")
+rom["VCC"] += vcc; rom["GND"] += gnd
+rom["VPP"] += vcc; rom["PGM"] += vcc
+for i in range(14):
+    rom[f"A{i}"] += A[i]          # ROM A0..A13 <- CPU address bus
+for i in range(8):
+    rom[f"D{i}"] += D[i]          # ROM data <-> data bus
+rom_ce_n = Net("~ROMCS")          # <- decode: A14·A15·/MREQ (ROM at 0x0000-3FFF)
+rom_oe_n = Net("~ROMOE")          # <- gated /RD
+rom["~CE"] += rom_ce_n
+rom["~OE"] += rom_oe_n
 
 # ---- 14 MHz clock oscillator (Z1 + D1 К1533ЛН1 inverters, R1/R2 470, C1 330p)
 # Classic 2-inverter crystal oscillator; output CLK14 feeds the /4 divider.
