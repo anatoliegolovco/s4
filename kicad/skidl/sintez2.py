@@ -217,9 +217,22 @@ for ref, net in zip(("R4", "R5", "R6", "R7"), (int_n, nmi_n, busrq_n, wait_n)):
 # ---- generate outputs ------------------------------------------------------
 ERC()   # prints its own '<n> errors / <n> warnings found' summary
 generate_netlist(file_=NETLIST)
+
+# Live schematic SVG for viewer.html. SKiDL's generate_svg emits the yosys JSON
+# but its internal netlistsvg --skin call fails on larger designs; netlistsvg works
+# fine on the JSON directly, so we drive it ourselves.
+import subprocess
 try:
-    generate_svg(file_=SVG)          # live schematic for the viewer.html "movie"
-    print(f"svg     -> {os.path.normpath(SVG)}.svg")
+    try:
+        generate_svg(file_=SVG)      # produces SVG.json (and may error on its own .svg)
+    except Exception:
+        pass
+    if os.path.exists(SVG + ".json"):
+        subprocess.run(["netlistsvg", SVG + ".json", "-o", SVG + ".svg"],
+                       check=True, capture_output=True)
+        print(f"svg     -> {os.path.normpath(SVG)}.svg")
+    else:
+        print("svg skipped (no json)")
 except Exception as e:
     print(f"svg skipped ({e})")
 print(f"netlist -> {os.path.normpath(NETLIST)}")
