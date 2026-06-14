@@ -13,3 +13,6 @@ sim/circuits/*.sim
 *.vcd
 *.net
 build/
+
+# python venv
+.venv/

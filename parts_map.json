@@ -6,7 +6,7 @@
     "2": "DRAM — high timing risk, model with real RU5 timing",
     "3": "Pixel shift registers — subtle setup/hold, keep LS-family timing",
     "4": "Video-output transistors — analog levels, keep KT315/KT361",
-    "5": "Tape tone decoder — do not substitute"
+    "5": "Tape input conditioning — analog comparator (К544СА3); keep equivalent analog behavior"
   },
   "parts": [
     {
@@ -36,15 +36,18 @@
     },
     {
       "soviet": "К555ИР16",
-      "modern": "74LS165 (keep LS timing)",
-      "western_equiv": "74LS165",
+      "modern": "4-bit parallel-load shift register, LS family (keep LS timing)",
+      "western_equiv": "4-bit/14-pin shift reg (NOT 74LS165) — exact 74xx TBD",
       "class": 3,
-      "role": "Pixel shift register (D39/D40/D41)",
+      "role": "Pixel/colour shift register (D39/D40/D41/D45)",
+      "pins": 14,
       "kicad_symbol": null,
-      "kicad_footprint": null,
-      "simulide_class": "shift register, LS family timing",
+      "kicad_footprint": "DIP-14",
+      "simulide_class": "4-bit shift register, LS family timing",
       "timing": { "setup_ns": 22, "family": "LS", "notes": "deliberate LS choice; ALS would inflate margin ~3x; clocked at 14 MHz" },
-      "status": "stub"
+      "topology": "PE(load)/SI(serial)/C(clk)/OE(3-state), D0-D3 -> Q0-Q3 (pins 13/12/11/10); 14-pin. D39(VD0-3)+D40(VD4-7)=8-bit pixel shifter; D45=colour out.",
+      "correction": "Earlier mapped to 74LS165 (8-bit/16-pin); the redraw symbol + power table prove 4-bit/14-pin. Verified 2026-06-14.",
+      "status": "topology confirmed; western part-number to finalize"
     },
     {
       "soviet": "К1533ИЕ7",
@@ -84,16 +87,19 @@
       "status": "confirmed"
     },
     {
-      "soviet": "К5545АЗ",
-      "modern": "LM567 (do not substitute)",
-      "western_equiv": "LM567",
+      "soviet": "К544СА3",
+      "modern": "LM311-class precision comparator",
+      "western_equiv": "voltage comparator (LM311-class)",
       "class": 5,
-      "role": "Tape tone decoder",
+      "role": "Tape-IN comparator (D49) — squares the analog tape signal to digital",
+      "pins": 14,
       "kicad_symbol": null,
-      "kicad_footprint": null,
-      "simulide_class": "tone decoder",
+      "kicad_footprint": "DIP-14",
+      "simulide_class": "comparator",
       "timing": {},
-      "status": "stub"
+      "topology": "inputs W1/W2, outputs QK/QE, strobe C, supplies +U1/-U2; R37 1.8M feedback, R38 3k.",
+      "correction": "Spec/earlier map said 'К5545АЗ ≈ LM567 tone decoder'. The actual part on the board (D49) is К544СА3, an analog COMPARATOR — not a tone decoder. Verified from the redraw 2026-06-14.",
+      "status": "confirmed (К544СА3)"
     },
     {
       "soviet": "КР1818ВГ93",

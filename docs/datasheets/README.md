@@ -43,14 +43,19 @@ the SimulIDE component models.
 
 ## Class 3 — Pixel shift register (setup/hold-critical, spec §2.3)
 
-### К555ИР16 ≈ 74LS165 (8-bit PISO shift register, D39/D40/D41)
-- **Datasheets:** [SN74LS165A (TI)](https://www.ti.com/product/SN74LS165A) ·
-  [LS165 (uvigo PDF)](http://mdgomez.webs.uvigo.es/LEDG/hojas_caracteristicas/74LS165.pdf)
-- **Key AC (74LS165, datasheet-typical):**
+### К555ИР16 — 4-bit / 14-pin parallel-load shift register (D39/D40/D41/D45)
+> ⚠ **Correction (2026-06-14):** earlier docs called this "≈ 74LS165 (8-bit PISO,
+> 16-pin)". The KiCad redraw symbol + the schematic's "Питание микросхем" power
+> table prove К555ИР16 is a **4-bit, 14-pin** shift register: PE(load)/SI(serial)/
+> C(clk)/OE(3-state), D0-D3 → Q0-Q3 (pins 13/12/11/10). Two of them (D39 carries
+> VD0-VD3, D40 carries VD4-VD7) form the 8-bit pixel shifter; D45 is the colour
+> output register. The exact western 74xx equivalent (4-bit, 14-pin, 3-state,
+> parallel-load) is still **_(to confirm)_** — NOT 74LS165.
+- **Key AC (LS family, datasheet-typical, still applies):**
 
   | Param | Value | Note |
   | --- | --- | --- |
-  | fmax | ≥ 25 MHz | guaranteed min; clocked at 14 MHz here → comfortable |
+  | fmax | ≥ 25 MHz | clocked at 14 MHz here → comfortable |
   | setup time tsu | ~20 ns | data → clock _(LS family; spec cites 20–25 ns)_ |
   | hold time th | ~5 ns _(to confirm)_ | |
   | tPLH/tPHL (clk→Q) | ~27 ns max _(to confirm)_ | |
@@ -98,11 +103,17 @@ the SimulIDE component models.
 
 ---
 
-## Class 5 — Tape tone decoder (do not substitute, spec §2.5)
+## Class 5 — Tape input conditioning (spec §2.5)
 
-### К5545АЗ ≈ LM567 (tone/PLL decoder)
-- **Datasheet:** [LM567 (TI)](https://www.ti.com/lit/ds/symlink/lm567.pdf)
-- Center freq set by external R/C; supply 4.75–9 V. Keep equivalent function.
+### К544СА3 — analog precision comparator (D49)
+> ⚠ **Correction (2026-06-14):** the spec/§2.5 and earlier docs said the tape
+> decoder is "К5545АЗ ≈ LM567 tone decoder". The actual part on the board (D49,
+> read from the redraw) is **К544СА3, an analog voltage COMPARATOR** (LM311-class),
+> not a tone/PLL decoder. It squares the analog tape-IN signal to a digital level.
+- **Topology:** inputs W1/W2, outputs QK/QE, strobe C, supplies +U1/-U2;
+  external R37 1.8M feedback + R38 3k (see `schematics/wiring.json` tape-audio).
+- **Western equiv:** LM311-class comparator. Datasheet: К544СА3 (Soviet ТУ);
+  functional analog LM311. _(exact AC params to confirm)_
 
 ---
 
