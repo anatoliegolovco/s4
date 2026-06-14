@@ -112,6 +112,24 @@ K565RU5 = _dip("K565RU5", "Package_DIP:DIP-16_W7.62mm", [
     (14, "DOUT", TRI), (15, "~CAS", I), (16, "GND", PWR),
 ], value="К565РУ5 (4164)")
 
+# КП12 (К1533КП12) = 74ALS253 dual 4:1 mux, 3-state, DIP-16. Shared selects A(14),
+# B(2). Group1: 1C0-3=pins 6,5,4,3 -> 1Y=7, enable ~1G=1. Group2: 2C0-3=10,11,12,13
+# -> 2Y=9, enable ~2G=15.
+K1533KP12 = _dip("K1533KP12", "Package_DIP:DIP-16_W7.62mm", [
+    (1, "~1G", I), (2, "B", I), (3, "1C3", I), (4, "1C2", I), (5, "1C1", I),
+    (6, "1C0", I), (7, "1Y", TRI), (8, "GND", PWR), (9, "2Y", TRI), (10, "2C0", I),
+    (11, "2C1", I), (12, "2C2", I), (13, "2C3", I), (14, "A", I), (15, "~2G", I),
+    (16, "VCC", PWR),
+], value="К1533КП12 (74ALS253)")
+
+# КР1533ИР27 = 74273 octal D flip-flop with clear, DIP-20.
+KR1533IR27 = _dip("KR1533IR27", "Package_DIP:DIP-20_W7.62mm", [
+    (1, "~MR", I), (2, "1Q", O), (3, "1D", I), (4, "2D", I), (5, "2Q", O),
+    (6, "3Q", O), (7, "3D", I), (8, "4D", I), (9, "4Q", O), (10, "GND", PWR),
+    (11, "C", I), (12, "5Q", O), (13, "5D", I), (14, "6D", I), (15, "6Q", O),
+    (16, "7Q", O), (17, "7D", I), (18, "8D", I), (19, "8Q", O), (20, "VCC", PWR),
+], value="КР1533ИР27 (74273)")
+
 # ---------------------------------------------------------------- passives
 def R(value):
     return Part(name="R", tool="skidl", dest=TEMPLATE, ref_prefix="R",

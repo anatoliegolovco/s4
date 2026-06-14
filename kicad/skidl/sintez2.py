@@ -124,6 +124,37 @@ ras_stb = Net("RAS_STB"); cas_stb = Net("CAS_STB"); mem_stb = Net("MEM_STB")
 d13["2A"] += mem_stb; d13["2B"] += ras_stb; d13["2Y"] += ras_n   # -> /RAS
 d13["3A"] += mem_stb; d13["3B"] += cas_stb; d13["3Y"] += cas_n   # -> /CAS
 
+# ---- block 4: bus arbitration — the "crown jewel" (PARTIAL) ----------------
+# D23/D24/D25 КП12 mux CPU address vs video-fetch address onto VA0-VA5 (each dual
+# 4:1 mux drives 2 VA bits; selects pick {row|col} x {CPU|video}). D5 КП12 makes
+# the video-fetch address K8-K12 from the V-counters; D26 КП12 is the A14/A15
+# paging mux; D38 ИР27 latches the row/RAM address.
+#
+# HONEST SCOPE: only the parts I can map with confidence are wired here — the mux
+# OUTPUTS -> VA (per schematics/wiring.json) and power. The detailed DATA-INPUT
+# mapping (which CPU/screen-address bit feeds which 4:1 input, and the exact
+# select/enable timing) is the screen-address generator — the most intricate logic
+# on the board. It must be traced pin-by-pin from the scan before it is trustworthy,
+# so it is deliberately left as a dedicated task rather than guessed here.
+d5  = P.K1533KP12(ref="D5");  d5["VCC"]  += vcc; d5["GND"]  += gnd
+d23 = P.K1533KP12(ref="D23"); d23["VCC"] += vcc; d23["GND"] += gnd
+d24 = P.K1533KP12(ref="D24"); d24["VCC"] += vcc; d24["GND"] += gnd
+d25 = P.K1533KP12(ref="D25"); d25["VCC"] += vcc; d25["GND"] += gnd
+d26 = P.K1533KP12(ref="D26"); d26["VCC"] += vcc; d26["GND"] += gnd
+d38 = P.KR1533IR27(ref="D38"); d38["VCC"] += vcc; d38["GND"] += gnd
+
+# Confident: mux outputs -> multiplexed DRAM address bus (wiring.json).
+d23["1Y"] += VA[0]; d23["2Y"] += VA[1]
+d24["1Y"] += VA[2]; d24["2Y"] += VA[3]
+d25["1Y"] += VA[4]; d25["2Y"] += VA[5]
+# (VA6/VA7 source still to be traced.)
+
+# Shared arbitration controls as named nets (driven by the sync/timing block 5).
+arb_rowcol = Net("ARB_ROWCOL")   # select B: row vs column phase
+arb_cpuvid = Net("ARB_CPUVID")   # select A: CPU vs video access phase
+for m in (d23, d24, d25):
+    m["A"] += arb_cpuvid; m["B"] += arb_rowcol
+
 # ---- 14 MHz clock oscillator (Z1 + D1 К1533ЛН1 inverters, R1/R2 470, C1 330p)
 # Classic 2-inverter crystal oscillator; output CLK14 feeds the /4 divider.
 z1   = P.XTAL("14MHz")(ref="Z1")

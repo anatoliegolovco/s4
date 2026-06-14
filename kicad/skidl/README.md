@@ -36,7 +36,12 @@ The generated `*.net` is a build artifact (gitignored) — regenerate from the P
       (address-pin map from wiring.json), /RAS, /CAS, /WE; per-bit DIN←Dn, DOUT→DDn.
       /RAS,/CAS from D13 ЛИ1; /WE=/WR. Verified, 0 ERC errors. ⚠ Timing strobes into
       D13 + refresh come from the arbitration/sync blocks (4/5); РУ5 timing model = T5.
-- [ ] Block 4 — bus arbitration (D5/D23–D26 КП12, D38 ИР27 latch).
+- [~] **Block 4 — bus arbitration ("crown jewel"), PARTIAL.** D5/D23/D24/D25/D26
+      КП12 + D38 ИР27 placed + powered; mux outputs mapped to VA0–VA5 (drives the
+      DRAM address bus). ⚠ The data-INPUT mapping (screen-address generator: which
+      CPU/video bit → which 4:1 input, + select/enable timing) is deliberately NOT
+      guessed — it must be traced pin-by-pin from the scan (most intricate logic on
+      the board). VA6/VA7 source + D26 paging + D38 latch nets also pending.
 - [ ] Block 5 — video sync (D2/D3/D4/D19 ИЕ7, D8/D21 ТМ2) + /4 CPU-clock divider.
 - [ ] Block 6 — pixel chain (D39/D40/D41 ИР16) + colour (D42–D48) + RGB out.
 - [ ] Block 7 — tape/audio (D49 К544СА3, beep) + disk I/O (D44/D50/D51) + connectors.
