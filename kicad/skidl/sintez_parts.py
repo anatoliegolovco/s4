@@ -74,6 +74,27 @@ K1533TM2 = _dip("K1533TM2", "Package_DIP:DIP-14_W7.62mm", [
     (11, "2C", I), (12, "2D", I), (13, "~2R", I), (14, "VCC", PWR),
 ], value="К1533ТМ2 (74LS74)")
 
+# К1533ЛЕ1 = 74LS02 quad 2-input NOR, DIP-14 (outputs on 1/4/10/13).
+K1533LE1 = _dip("K1533LE1", "Package_DIP:DIP-14_W7.62mm", [
+    (1, "1Y", O), (2, "1A", I), (3, "1B", I), (4, "2Y", O), (5, "2A", I),
+    (6, "2B", I), (7, "GND", PWR), (8, "3A", I), (9, "3B", I), (10, "3Y", O),
+    (11, "4A", I), (12, "4B", I), (13, "4Y", O), (14, "VCC", PWR),
+], value="К1533ЛЕ1 (74LS02)")
+
+# К1533ЛА3 = 74ALS00 quad 2-input NAND, DIP-14.
+K1533LA3 = _dip("K1533LA3", "Package_DIP:DIP-14_W7.62mm", [
+    (1, "1A", I), (2, "1B", I), (3, "1Y", O), (4, "2A", I), (5, "2B", I),
+    (6, "2Y", O), (7, "GND", PWR), (8, "3Y", O), (9, "3A", I), (10, "3B", I),
+    (11, "4Y", O), (12, "4A", I), (13, "4B", I), (14, "VCC", PWR),
+], value="К1533ЛА3 (74ALS00)")
+
+# К1533ЛА4 = 74ALS10 triple 3-input NAND, DIP-14.
+K1533LA4 = _dip("K1533LA4", "Package_DIP:DIP-14_W7.62mm", [
+    (1, "1A", I), (2, "1B", I), (3, "2A", I), (4, "2B", I), (5, "2C", I),
+    (6, "2Y", O), (7, "GND", PWR), (8, "3Y", O), (9, "3A", I), (10, "3B", I),
+    (11, "3C", I), (12, "1C", I), (13, "1Y", O), (14, "VCC", PWR),
+], value="К1533ЛА4 (74ALS10)")
+
 # ---------------------------------------------------------------- passives
 def R(value):
     return Part(name="R", tool="skidl", dest=TEMPLATE, ref_prefix="R",

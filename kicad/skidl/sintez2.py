@@ -72,6 +72,26 @@ rom_oe_n = Net("~ROMOE")          # <- gated /RD
 rom["~CE"] += rom_ce_n
 rom["~OE"] += rom_oe_n
 
+# ---- block 2b: ROM address decode -----------------------------------------
+# FUNCTIONAL decode (48K-compatible: ROM occupies 0x0000-0x3FFF, i.e. A14=A15=0):
+#   ~ROMCS = NAND( (A14 NOR A15) , NOT/MREQ )   -> low only on a memory access
+#            in the low 16K.
+#   ROM /OE = /RD (output enabled while the CPU reads).
+# Uses the real decode-gate types present on the board (D22 ЛЕ1, D9 ЛН1, D17 ЛА3).
+# CONFIDENCE: the LOGIC is correct for a Spectrum-compatible map; the exact
+# gate-SECTION assignment (which D22/D9/D17 section, which pins) is to be verified
+# pin-by-pin against the scan — see schematics/wiring.json decode TODO.
+d22 = P.K1533LE1(ref="D22"); d22["VCC"] += vcc; d22["GND"] += gnd
+d9  = P.K1533LN1(ref="D9");  d9["VCC"]  += vcc; d9["GND"]  += gnd
+d17 = P.K1533LA3(ref="D17"); d17["VCC"] += vcc; d17["GND"] += gnd
+
+rom_region = Net("ROM_REGION")     # high when A14=A15=0 (low 16K)
+mreq_h     = Net("MREQ_H")         # active-high copy of /MREQ
+d22["1A"] += A[14]; d22["1B"] += A[15]; d22["1Y"] += rom_region   # NOR
+d9["1A"]  += MREQ;  d9["1Y"]  += mreq_h                           # inverter
+d17["1A"] += rom_region; d17["1B"] += mreq_h; d17["1Y"] += rom_ce_n  # NAND -> ~ROMCS
+RD += rom_oe_n                     # ROM /OE follows CPU /RD
+
 # ---- 14 MHz clock oscillator (Z1 + D1 К1533ЛН1 inverters, R1/R2 470, C1 330p)
 # Classic 2-inverter crystal oscillator; output CLK14 feeds the /4 divider.
 z1   = P.XTAL("14MHz")(ref="Z1")
