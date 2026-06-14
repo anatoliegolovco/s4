@@ -47,13 +47,13 @@ DESKTOP_DIR="$HOME/.local/share/applications"
 mkdir -p "$INSTALL_DIR" "$BIN_DIR" "$DESKTOP_DIR"
 
 log "Looking for a downloaded SimulIDE Linux-64 file in ~/Downloads …"
-shopt -s nullglob
-mapfile -t FILES < <(ls -t \
-    "$HOME/Downloads"/SimulIDE*Lin64*.tar.gz \
-    "$HOME/Downloads"/SimulIDE*Lin64*.AppImage \
-    "$HOME/Downloads"/SimulIDE*linux*.tar.gz \
-    "$HOME/Downloads"/SimulIDE*.AppImage \
-    "$HOME/Downloads"/SimulIDE*.tar.gz 2>/dev/null || true)
+# Robust: search ONLY ~/Downloads, real files, newest first. (Do not use
+# `ls -t <glob>` — with no matches it falls back to listing the cwd.)
+mapfile -t FILES < <(find "$HOME/Downloads" -maxdepth 1 -type f \
+    \( -iname 'SimulIDE*Lin64*.tar.gz'  -o -iname 'SimulIDE*Lin64*.AppImage' \
+       -o -iname 'SimulIDE*linux*.tar.gz' \
+       -o -iname 'SimulIDE*.AppImage'   -o -iname 'SimulIDE*.tar.gz' \) \
+    -printf '%T@\t%p\n' 2>/dev/null | sort -rn | cut -f2-)
 
 if [ "${#FILES[@]}" -eq 0 ]; then
     warn "No SimulIDE file found in ~/Downloads."
