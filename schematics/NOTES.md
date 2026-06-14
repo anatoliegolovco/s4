@@ -1,9 +1,11 @@
 # schematics/NOTES.md — block inventory & scan-error reconciliation
 
-> **Status: IN PROGRESS (milestone T1).** Deliverable for T1 in the spec
-> (`docs/spec/sintez2-recon-spec.md` §8): list every functional block with the
-> source used and any discrepancy resolved. Primary sources are now in the repo
-> (`reference/`, catalogued in `docs/references/sources-catalog.md`).
+> **Status: T1 essentially COMPLETE (v0.3).** Every functional block listed with
+> source + discrepancies resolved; **all 51 ICs identified** (see `bom.json`).
+> Deliverable for T1 in the spec (`docs/spec/sintez2-recon-spec.md` §8). Primary
+> sources in the repo (`reference/`, catalogued in
+> `docs/references/sources-catalog.md`). Remaining work is pin-level net tracing
+> (→ `wiring.json`, milestone T2).
 
 ## Sources in hand
 
@@ -28,8 +30,9 @@ pin-level nets are tracked in `wiring.json`'s per-block `status`.
 - [x] **CPU & clock** — **D6 = Z80** (power pins 11/29 confirm DIP-40); Z1
       14 MHz pixel clock; clock R3 820, reset C2 10µF + R10 5.1k, pull-ups
       R4/R5 5.1k; WAIT gen D20/D12 ТМ2. (tile r3c1)
-- [x] **Address decode** — D26 КП12 mux (A9/A13/A14/A15); D22 ЛЕ1, D32 ЛА4
-      decode gates; ROM CS net TODO. (tiles r3c2)
+- [x] **Address decode** — D26 КП12 mux (A9/A13/A14/A15); decode gates
+      D22 (ЛЕ1), D9 (ЛН1), D10/D27/D37 (ЛА4), D17 (ЛА3); ROM /CE pin20, /OE pin22;
+      decode signals /BROM,/RD,/WR,/IORQ,/BK,/WAIT,/BJ. (tiles r2c1, r3c2)
 - [x] **DRAM + refresh** — **D28–D35 = К565РУ5** ×8 (power pins 8/16); address
       muxes D24/D25 → VA; refresh address from ИЕ7 counters; WAIT to slow РУ5.
       (tile r2c2)
@@ -37,18 +40,24 @@ pin-level nets are tracked in `wiring.json`'s per-block `status`.
       (≈74ALS253) + D38 ИР23 latch → VADDR + RAS/CAS. (tiles r1c2, r2c2)
 - [x] **Sync generation** — D2/D19 (H), D3/D4 (V) = ИЕ7 (СТ2 counters); D8/D21
       ТМ2; D10 ЛА4; D14 ЛЕ1; D18 ЛП5 (FLASH). (tiles r1c1, r2c1)
-- [x] **Pixel chain** — **D39/D40/D61 = К555ИР16** (74LS165) @ 14 MHz; **keep
-      LS timing**. (Note: spec text said D41; the board labels D61.) (tile r1c3)
+- [x] **Pixel chain** — **D39/D40/D41 = К555ИР16** @ 14 MHz; **keep LS timing**.
+      ⚠ К555ИР16 is a **4-bit / 14-pin** shift register (PE/SI/C/OE, D0-D3→Q0-Q3),
+      **NOT 74LS165** (which is 8-bit/16-pin). D39=VD0-VD3, D40=VD4-VD7 (=8-bit
+      pixel shifter), D41=3rd nibble/attribute. (redraw symbols, tile r1c3)
 - [x] **RGB output stage** — VT3–VT18 (КТ315Г/КТ361Г) + ladder R41 620/R42
       1.8k/R47 270/R48 620/R49 1k/R54 620/R55 1.8k/R60 820 + VD3–VD8; УС-1
       emitter follower (VT1). SCART mod: **200 Ω sync** (100 Ω → color loss).
       Color stage D42/D43/D45/D46/D47/D48. (tiles r1c3, r2c3, r3c3)
 - [x] **Audio/tape** — port 0xFE (BEEP/border/tape); X5 "M" connector
-      (OUT/GND/IN); R30/R31 3k, R32 5.1k; К5545АЗ≈LM567 tone decode (net TODO).
-      (tile r3c3)
-- [x] **TR-DOS / Beta Disk** — **КР1818ВГ93 ≈ WD1793** confirmed from board
-      photo; on-board buffers D50/D51 (ИР22) + disk-address diodes; FDC is a
-      separate daughterboard, not on the mainboard sheet. Board `СМП59-96Г-16-2`.
+      (TAPE_IN/GND/TAPE_OUT); R30/R31 3k, R32 5.1k. ⚠ Tape-IN is squared by
+      **D49 = К544СА3, an analog COMPARATOR** (R37 1.8M feedback) — **NOT** a
+      К5545АЗ/LM567 tone decoder as the spec §2.5 states. BEEP: port-0xFE bit →
+      R69 33k → VT2/VT13 КТ315 → BA1 speaker. (tiles r3c3, r3c4)
+- [x] **TR-DOS / Beta Disk** — **КР1818ВГ93 ≈ WD1793** (FDC on daughterboard;
+      schematic now in `reference/schematics/betadisk-controller-bdi.pdf`).
+      Mainboard carries **D50 = К1533АП3** (74244 buffer, AA8-AA15 disk address
+      via КД522 diodes) + **D51/D44 = К1533ИР22** (74373 disk-data latches).
+      Joystick/disk connectors X1('L')/X2('R')/X3('K')/X4/X6. Board `СМП59-96Г-16-2`.
 - [ ] **(Optional) 128 KB expansion** — port `#7FFD` paging; mod chips
       К555ТМ9 / К1533КП11 / К555ЛЛ1 / К1533ЛА3 (`reference/photos/sintez128.jpg`).
       Opt-in variant — see `docs/ledger/architecture/bank-switching-ram-size.md`.
@@ -80,6 +89,39 @@ pin-level nets are tracked in `wiring.json`'s per-block `status`.
 - `schematics/wiring.json` — buses, control signals, connector pinouts, power
   pins, and block-to-bus relations; pin-level intra-block nets are the next pass.
 - Pipeline & status: `docs/schematic-extraction.md`.
+
+## v0.3 — full IC resolution & corrections (2026-06-14)
+
+Read directly from the **KiCad/Eeschema redraw** `Sintez_II_orig.sch` (NPO Signal
+Chișinău, 29 oct 2012 — title block confirms it), rendered at 600–800 dpi from
+`reference/schematics/sintez2-original.pdf` and cross-checked against the
+"Питание микросхем" power table for pin counts.
+
+**Previously-open designators — now resolved:**
+
+| Ref | Type | ≈ Western | Pins | Role |
+| --- | --- | --- | --- | --- |
+| D37 | К1533ЛА4 | 74ALS10 | 14 | triple 3-in NAND — keyboard/joystick decode |
+| D44 | К1533ИР22 | 74ALS373 | 20 | octal latch — disk-data path |
+| D49 | **К544СА3** | LM311-class comparator | 14 | **tape-IN comparator** |
+| D50 | К1533АП3 | 74ALS244 | 20 | octal buffer — disk address AA8-AA15 |
+| D51 | К1533ИР22 | 74ALS373 | 20 | octal latch — disk data-in |
+
+**Corrections to the spec / earlier BOM:**
+
+1. **D38 = КР1533ИР27** (74273 octal D-FF, 20-pin) — earlier read as ИР23/74LS374.
+2. **К555ИР16 (D39/D40/D41/D45) is a 4-bit / 14-pin shift register, NOT 74LS165**
+   (8-bit/16-pin). The redraw symbol shows PE/SI/C/OE + D0-D3→Q0-Q3; the power
+   table puts them in the 14-pin group. D39(VD0-3)+D40(VD4-7) = the 8-bit pixel
+   shifter. This resolves the v0.2 "discrepancy to reconcile". Exact 74xx
+   equivalent (4-bit, 14-pin, 3-state, parallel-load) still TBD.
+3. **Tape decoder is wrong in the spec:** the part is **К544СА3 (a comparator)**,
+   not К5545АЗ/LM567. Spec §2.5 / §3 / §11 should be updated when convenient.
+
+**Connectors captured (→ `wiring.json`):** X7 "TV" (SOUND/SYNC/B/G/R/GND, +
+monitor group FV/HS/VS/Y/CSYNC/+5V), X8 64-pin expansion = full Z80 bus
+(SNP58-64), X5 tape "M", X1/X2 Sinclair joysticks, X3 keyboard, X4/X6 disk,
+X9 power. Full power-pin table transcribed.
 
 ## Known scan errors to reconcile
 

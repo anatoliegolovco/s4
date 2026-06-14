@@ -5,7 +5,7 @@
   "cross_check": "reference/schematics/sintez2-original.pdf (colorized redraw)",
   "extracted": "2026-06-13",
   "method": "visual transcription from 350 dpi tiles in schematics/tiles/ (grid r{row}c{col})",
-  "status": "v0.2 — cross-checked against the colorized vector redraw (schematics/tiles-color/), which prints exact part numbers and net names. Logic family confirmed К1533 (≈74ALS/F); registers К555ИР16/22/23 (LS); DRAM К565РУ5. Remaining gaps: a few high designators (D37,D49,D52+) and pin-level nets.",
+  "status": "v0.3 — ALL 51 ICs identified. Read directly from the KiCad/Eeschema redraw 'Sintez_II_orig.sch' (29 oct 2012) rendered at 600-800 dpi from reference/schematics/sintez2-original.pdf, cross-checked against the 'Питание микросхем' power table for pin counts. Resolved D37,D44,D49,D50,D51; corrected D38 (ИР27 not ИР23) and the К555ИР16 mapping (4-bit/14-pin, NOT 74LS165) and the tape part (D49 К544СА3 comparator, NOT LM567). Remaining: pin-level intra-block nets (-> wiring.json / T2).",
   "family_note": "Glue/counters/muxes = К1533 (74ALS/F). Shift/latch registers = К555ИР16/ИР22/ИР23 (keep LS timing). DRAM = К565РУ5. CPU labeled Z80A in the redraw.",
   "confidence_legend": "high = label read clearly; med = label partly inferred; low = guessed from context",
   "type_map": {
@@ -19,12 +19,15 @@
     "ТМ2":  { "western": "74LS74",  "fn": "dual D flip-flop" },
     "ИЕ7":  { "western": "74ALS193/74xx193", "fn": "4-bit up/down binary counter (СТ2)", "family": "ALS (К1533)" },
     "ИЕ10": { "western": "CD4520B (К561ИЕ10 — CMOS 4000-series dual binary up-counter)", "fn": "dual 4-bit counter", "family": "CMOS К561", "confidence": "high" },
-    "ИР16": { "western": "74LS165", "fn": "8-bit PISO shift register (KEEP LS timing)" },
-    "ИР22": { "western": "74LS373", "fn": "octal transparent latch" },
-    "ИР23": { "western": "74LS374", "fn": "octal D-type latch" },
+    "ИР16": { "western": "NOT 74LS165 — 4-bit parallel-load shift register w/ 3-state out", "fn": "4-bit shift register: PE(load)/SI(serial)/C(clk)/OE(3-state), D0-D3 -> Q0-Q3; 14-pin (KEEP К555/LS timing)", "family": "LS (К555)", "pins": 14, "correction": "spec/earlier-BOM said К555ИР16≈74LS165 (8-bit, 16-pin); the redraw symbol + 'Питание' power table (14/7) prove it is a 4-bit, 14-pin part. Two of them (D39 VD0-3 + D40 VD4-7) make the 8-bit pixel shifter. Exact 74xx equivalent TBD (4-bit, 14-pin, 3-state, parallel-load)." },
+    "ИР22": { "western": "74LS373/74ALS373", "fn": "octal transparent latch", "pins": 20 },
+    "ИР23": { "western": "74LS374/74ALS374", "fn": "octal D-type latch", "pins": 20 },
+    "ИР27": { "western": "74273/74ALS273", "fn": "octal D flip-flop with clear", "pins": 20, "family": "ALS (КР1533)" },
     "КП11": { "western": "74ALS257", "fn": "quad 2:1 mux (3-state)", "family": "ALS (К1533)" },
     "КП12": { "western": "74ALS253", "fn": "dual 4:1 mux (3-state)", "family": "ALS (К1533)" },
-    "АП6":  { "western": "74LS245", "fn": "octal bus transceiver" }
+    "АП3":  { "western": "74LS244/74ALS244", "fn": "octal 3-state buffer/line driver", "pins": 20, "family": "ALS (К1533)" },
+    "АП6":  { "western": "74LS245", "fn": "octal bus transceiver", "pins": 20 },
+    "СА3":  { "western": "LM311-class precision comparator (К544СА3)", "fn": "analog voltage comparator with strobe; used to square the tape-IN signal", "pins": 14, "family": "analog (К544)" }
   },
   "components": [
     { "ref": "Z1",  "type": "14 MHz oscillator/crystal", "block": "clock", "notes": "pixel clock 14 MHz = 2x CPU; async to CPU", "confidence": "high", "tile": "r1c1" },
@@ -57,19 +60,20 @@
     { "ref": "D27", "type": "ЛА4", "western": "74LS10", "block": "glue", "sections": ["D27.3"], "confidence": "low", "tile": "r1c2" },
     { "ref": "D28-D35", "type": "РУ5", "western": "К565РУ5 ≈ 4164 (64Kx1 DRAM)", "block": "dram", "count": 8, "power": { "+5V": 8, "GND": 16 }, "role": "64 KB DRAM array, 1 bit/chip (DD0-DD7)", "confidence": "high", "tile": "r2c2", "notes": "KEEP slow РУ5 timing (spec §2.4)" },
     { "ref": "D36", "type": "ПЗУ ROM = 27128", "western": "27128 (16Kx8 EPROM)", "block": "rom", "pins": { "A0-A13": [10,9,8,7,6,5,4,3,25,24,21,23,2,26], "D0-D7": [11,12,13,15,16,17,18,19], "PGM": 27, "VPP": 1, "/CE": 20, "/OE": 22 }, "role": "stock 48K ROM (BASIC), A0-A13 -> D0-D7", "confidence": "high", "tile": "r3c2", "color_tile": "gap_mid_right", "notes": "redraw labels it literally '27128'; Soviet drop-in КР573РФ6/РФ8-class or imported" },
-    { "ref": "D38", "type": "ИР23", "western": "74LS374", "block": "addr-latch", "role": "RAM address latch", "confidence": "high", "tile": "r1c2" },
-    { "ref": "D39", "type": "ИР16", "western": "74LS165", "block": "pixel-chain", "role": "pixel shift register @14 MHz (KEEP LS)", "confidence": "high", "tile": "r1c3" },
-    { "ref": "D40", "type": "ИР16", "western": "74LS165", "block": "pixel-chain", "role": "pixel shift register @14 MHz (KEEP LS)", "confidence": "high", "tile": "r1c3" },
+    { "ref": "D38", "type": "ИР27 (КР1533ИР27)", "western": "74273/74ALS273", "block": "addr-latch", "role": "RAM/attribute address latch (D0-D7 -> Q0-Q7, RAM/CLK/FV/ATR)", "confidence": "high", "tile": "r1c2", "source": "redraw symbol 'D38 KR1533IR27'", "notes": "CORRECTED from earlier 'ИР23/74LS374' — the redraw labels it КР1533ИР27 (74273 octal D-FF, 20-pin)" },
+    { "ref": "D39", "type": "ИР16 (К555ИР16)", "western": "4-bit shift reg (NOT 74LS165)", "block": "pixel-chain", "role": "pixel shift register low nibble VD0-VD3 @14 MHz (KEEP LS)", "confidence": "high", "tile": "r1c3", "source": "redraw symbol: PE/C/OE/SI, D0-D3->Q0-Q3(13/12/11/10)", "notes": "4-bit/14-pin per power table; D39(VD0-3)+D40(VD4-7) form the 8-bit pixel shifter" },
+    { "ref": "D40", "type": "ИР16 (К555ИР16)", "western": "4-bit shift reg (NOT 74LS165)", "block": "pixel-chain", "role": "pixel shift register high nibble VD4-VD7 @14 MHz (KEEP LS)", "confidence": "high", "tile": "r1c3", "source": "redraw symbol (4-bit, 14-pin)" },
     { "ref": "D42", "type": "ИР23", "western": "74LS374", "block": "video-data", "role": "pixel/attribute data latch", "confidence": "high", "tile": "r2c3" },
     { "ref": "D43", "type": "ИР22", "western": "74LS373", "block": "video-data", "role": "data latch", "confidence": "high", "tile": "r2c3" },
-    { "ref": "D44", "type": "ИР (RG)", "western": "74LS-series register (verify)", "block": "io/keyboard", "confidence": "low", "tile": "r3c3" },
-    { "ref": "D45", "type": "ИР16 (К555ИР16)", "western": "74LS165", "block": "color", "role": "color output register BM/RM/GM/YM -> BR/RR/GR/YR (Q0-Q3 pins 13/12/11/10)", "confidence": "high", "tile": "r1c3", "color_tile": "zoom_connector" },
+    { "ref": "D44", "type": "ИР22 (К1533ИР22)", "western": "74LS373/74ALS373", "block": "disk-data", "role": "octal latch in the disk-data path (-> D0-D7); 20-pin, near tape connector X5", "confidence": "high", "tile": "r3c3", "source": "redraw symbol 'D44 K1533IR22'", "notes": "RESOLVED — was low-confidence 'ИР(RG)?'" },
+    { "ref": "D49", "type": "СА3 (К544СА3)", "western": "LM311-class precision comparator", "block": "tape-audio", "role": "tape-IN comparator: squares the analog tape signal to digital (R37 1.8M feedback, R38 3k, C8)", "confidence": "high", "tile": "r3c3", "source": "redraw symbol 'D49 K544SA3' (pins W1/W2/C/QK/QE/+U1/-U2)", "notes": "RESOLVED + CORRECTS SPEC: the spec/§2.5 called the tape decoder 'К5545АЗ≈LM567'; the actual part on this board is К544СА3, an analog COMPARATOR (not a tone decoder). 14-pin." },
+    { "ref": "D45", "type": "ИР16 (К555ИР16)", "western": "4-bit shift reg (NOT 74LS165)", "block": "color", "role": "color output register BM/RM/GM/YM -> BR/RR/GR/YR (Q0-Q3 pins 13/12/11/10); 4-bit/14-pin", "confidence": "high", "tile": "r1c3", "color_tile": "zoom_connector" },
     { "ref": "D46", "type": "КП12", "western": "74ALS253", "block": "color", "role": "color/attribute mux (YBM,YRM)", "confidence": "high", "tile": "r1c3" },
     { "ref": "D47", "type": "КП12", "western": "74ALS253", "block": "color", "role": "attribute mux (YGM,YM)", "confidence": "high", "tile": "r2c3" },
     { "ref": "D48", "type": "ИР22 (К1533ИР22)", "western": "74LS373", "block": "border", "role": "border colour register: D0-D4 -> BB/RB/GB (border R/G/B)", "confidence": "high", "tile": "r2c3", "color_tile": "gap_mid_right" },
-    { "ref": "D50", "type": "buffer/АП (verify)", "western": "74LS244/245 (verify)", "block": "disk-addr", "role": "disk address buffer (AA8-AA14) with diodes D9..D16", "confidence": "low", "tile": "r2c3/r3c4" },
-    { "ref": "D51", "type": "ИР22", "western": "74LS373", "block": "disk-data", "role": "data latch (D0-D7 -> Q0-Q7)", "confidence": "med", "tile": "r3c4" },
-    { "ref": "D41", "type": "ИР16 (К555ИР16)", "western": "74LS165", "block": "pixel-chain", "role": "third pixel shift register @14 MHz (KEEP LS)", "confidence": "high", "tile": "r1c3", "color_tile": "zoom_connector", "notes": "redraw label D41 = K555IR16 confirms spec; earlier scan read 'D61' was a misread" }
+    { "ref": "D50", "type": "АП3 (К1533АП3)", "western": "74LS244/74ALS244", "block": "disk-addr", "role": "octal 3-state buffer (both halves D50A/D50B) driving disk address AA8-AA15 via КД522 diodes; OE on pin 1/19; 20-pin", "confidence": "high", "tile": "r2c3/r3c4", "source": "redraw symbol 'D50A/D50B K1533AP3'", "notes": "RESOLVED — was low-confidence; confirmed АП3 (74244), not 245" },
+    { "ref": "D51", "type": "ИР22 (К1533ИР22)", "western": "74LS373/74ALS373", "block": "disk-data", "role": "octal latch latching disk data-in DI0-DI4 -> D0-D7; 20-pin", "confidence": "high", "tile": "r3c4", "source": "redraw symbol 'D51 K1533IR22'", "notes": "RESOLVED/CONFIRMED" },
+    { "ref": "D41", "type": "ИР16 (К555ИР16)", "western": "4-bit shift reg (NOT 74LS165)", "block": "pixel-chain", "role": "third pixel/attribute shift register @14 MHz (KEEP LS); 4-bit/14-pin", "confidence": "high", "tile": "r1c3", "color_tile": "zoom_connector", "notes": "redraw label D41 = K555IR16 confirms designator; earlier scan read 'D61' was a misread. 4-bit/14-pin per power table." }
   ],
   "custom_modules": [
     { "ref": "УС-1 (YC-1)", "role": "analog line-driver module — one transistor (КТ315) + resistors", "block": "analog-buffers", "tile": "r3c3", "color_tile": "c_r2c3", "notes": "redraw labels these YC-1..YC-5: five identical single-transistor driver/buffer blocks" },
@@ -109,8 +113,10 @@
   },
   "gaps_to_resolve": [
     "RESOLVED via redraw: family=К1533; D13=ЛИ1(RAS/CAS); D14=ЛЕ1; D41(not D61)=ИР16; D45=ИР16; D46/D47=КП12; D5=КП12(video-addr K8-K12); D11=К561ИЕ10(CD4520); D26=КП12; D36=27128; D48=ИР22(border BB/RB/GB).",
-    "Still open: D37, D44, D49, D50, D51 (disk/keyboard area) — need high-zoom crops of c_r2c2/c_r3c3 right-side; NOT obtainable from forums (no online BOM) and no physical board available.",
-    "Internet Archive / archive.ph unreachable from this environment (egress policy blocks web.archive.org). Forum mirrors dead. Color tiles are the working source for the rest.",
-    "Read remaining rows of the 'Питание микросхем' power table for the full IC inventory + power pins."
+    "RESOLVED 2026-06-14 from the 600-800 dpi redraw render: D37=К1533ЛА4 (kbd/joystick decode); D44=К1533ИР22 (disk data); D49=К544СА3 (tape-IN comparator); D50=К1533АП3 (disk-addr buffer); D51=К1533ИР22 (disk data-in latch).",
+    "CORRECTIONS to spec/earlier BOM: D38=КР1533ИР27 (74273), not ИР23/74LS374. К555ИР16 (D39/40/41/45)=4-bit/14-pin shift register, NOT 74LS165 (8-bit/16-pin). Tape part=К544СА3 comparator, NOT К5545АЗ/LM567 (spec §2.5 is wrong).",
+    "Power table fully read: 40p D6; 16p D28-D35; 28p D36; 20p D38,D42-D44,D48,D50,D51; 16p D2-D5,D11,D19,D23-D26,D46,D47; 14p D1,D7-D10,D12-D18,D20-D22,D27,D37,D39-D41,D45.",
+    "Source unlocked: the redraw is KiCad/Eeschema 'Sintez_II_orig.sch' (NPO Signal Chișinău, 29 oct 2012) — vector, re-renderable at any DPI via pdftocairo. The .sch itself is unpublished; only this PDF export.",
+    "Next (T2): trace pin-level intra-block nets per block into wiring.json; verify D42 (ИР22 vs ИР23) and D11 (К561ИЕ10) families on a high-zoom crop."
   ]
 }
