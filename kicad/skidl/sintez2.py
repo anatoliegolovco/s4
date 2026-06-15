@@ -229,6 +229,47 @@ d41v["Q3"] += d40v["SI"]                          # D41 → D40
 d40v["Q3"] += d39v["SI"]; d40v["Q3"] += d13["4A"] # D40 → D39, and FLASH-AND tap
 pix_ser = Net("PIX_SER"); d39v["Q3"] += pix_ser   # final serial pixel → FLASH XOR (D18)
 
+# ---- block 6b: colour stage (D42 ИР23, D43 ИР22, D45 ИР16, D46/D47 КП12, D48 ИР22)
+# Wired from the verified trace-verify nets (pin-exact). VD0-7 latch into D42 (→ colour
+# bits B0/R0/G0/B1/R1/G1/Y) and D43 (→ data bus). D46/D47 КП12 mux those into BM/RM/GM/YM,
+# D45 ИР16 registers them to BR/RR/GR/YR; D48 latches the border D0-D4 → BB/RB/GB.
+d42 = P.K1533IR23(ref="D42"); d43 = P.K1533IR22(ref="D43"); d45c = P.K555IR16(ref="D45")
+d46 = P.K1533KP12(ref="D46"); d47 = P.K1533KP12(ref="D47"); d48 = P.K1533IR22(ref="D48")
+for pp in (d42, d43, d48): pp["VCC"] += vcc; pp["GND"] += gnd
+for pp in (d45c,):          pp["VCC"] += vcc; pp["GND"] += gnd
+for pp in (d46, d47):       pp["VCC"] += vcc; pp["GND"] += gnd
+_cp = {"D42": d42, "D43": d43, "D45": d45c, "D46": d46, "D47": d47, "D48": d48}
+_exist = {f"VD{i}": VD[i] for i in range(8)}
+_exist.update({f"D{i}": D[i] for i in range(8)})
+_exist["GND"] = gnd
+_colornets = {
+    "VD0": ["D42.3", "D43.3"], "VD1": ["D42.4", "D43.4"], "VD2": ["D42.7", "D43.7"],
+    "VD3": ["D42.8", "D43.8"], "VD4": ["D42.13", "D43.13"], "VD5": ["D42.14", "D43.14"],
+    "VD6": ["D42.17", "D43.17"], "VD7": ["D42.18", "D43.18"],
+    "D0": ["D43.2", "D48.3"], "D1": ["D43.5", "D48.4"], "D2": ["D43.6", "D48.7"],
+    "D3": ["D43.9", "D48.13"], "D4": ["D43.12", "D48.8"],
+    "D5": ["D43.15"], "D6": ["D43.16"], "D7": ["D43.19"],
+    "B0": ["D42.2", "D46.5"], "R0": ["D42.5", "D46.11"], "G0": ["D42.6", "D47.5"],
+    "B1": ["D42.9", "D46.6"], "R1": ["D42.12", "D46.10"], "G1": ["D42.15", "D47.6"],
+    "Y": ["D42.16", "D47.10", "D47.11"],
+    "BB": ["D48.2", "D46.4", "D46.3"], "RB": ["D48.5", "D46.12", "D46.13"],
+    "GB": ["D48.6", "D47.4", "D47.3"],
+    "BM": ["D46.7", "D45.2"], "RM": ["D46.9", "D45.3"], "GM": ["D47.7", "D45.4"],
+    "YM": ["D47.9", "D45.5"],
+    "BR": ["D45.13"], "RR": ["D45.12"], "GR": ["D45.11"], "YR": ["D45.10"],
+    "BORDER": ["D46.2", "D47.2"], "a2": ["D45.6"],
+    "GND": ["D42.1", "D46.15", "D47.15", "D48.1"],   # OE/2G ties to ground
+}
+for _nm, _eps in _colornets.items():
+    _n = _exist.get(_nm) or Net(_nm)
+    for _ep in _eps:
+        _r, _pn = _ep.split(".")
+        _n += _cp[_r][int(_pn)]
+# D46/D47 OE0(pin1) ← FLASH-gated SCREEN, select A(14) ← arbitration — named, TODO trace
+vid_oe = Net("VID_OE"); vid_sel = Net("VID_SEL")
+d46[1] += vid_oe; d47[1] += vid_oe; d46[14] += vid_sel; d47[14] += vid_sel
+d45c["C"] += clk14; d45c["OE"] += gnd; d45c["SI"] += gnd   # colour register clock/enable
+
 # ---- generate outputs ------------------------------------------------------
 ERC()   # prints its own '<n> errors / <n> warnings found' summary
 generate_netlist(file_=NETLIST)
