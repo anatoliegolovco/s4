@@ -95,12 +95,18 @@ def package_pinmap(simpart, ls):
     if not os.path.exists(f):
         return None
     txt = open(f).read()
-    m = {}
-    for mm in re.finditer(r'id="([^"]+)"[^>]*?/>\s*<!--\s*packagePin(\d+)', txt):
-        m[mm.group(2)] = mm.group(1)
-    if not m:  # fallback: order of <pin> = pin 1..N
-        for i, mm in enumerate(re.finditer(r'<pin\b[^>]*\bid="([^"]+)"', txt), 1):
-            m[str(i)] = mm.group(1)
+    m = {}   # pin_number -> (id, xpos, ypos, angle)
+    for i, mm in enumerate(re.finditer(r'<pin\b([^>]*)/>', txt), 1):
+        attrs = mm.group(1)
+        pid = re.search(r'\bid="([^"]+)"', attrs)
+        xp = re.search(r'\bxpos="(-?\d+)"', attrs)
+        yp = re.search(r'\bypos="(-?\d+)"', attrs)
+        ang = re.search(r'\bangle="(-?\d+)"', attrs)
+        num = re.search(r'packagePin(\d+)', txt[mm.end():mm.end()+40])
+        n = num.group(1) if num else str(i)
+        if pid:
+            m[n] = (pid.group(1), int(xp.group(1)) if xp else 0,
+                    int(yp.group(1)) if yp else 0, int(ang.group(1)) if ang else 0)
     return m
 
 def main():
@@ -109,20 +115,23 @@ def main():
     pin_id = {}   # (ref, pinnum) -> SimulIDE "CircId-pinid", or None if skipped
     circid = {}   # ref -> CircId
 
-    # place components on a grid. CircId MUST be "<SimulIDE-part>-<uid>" — SimulIDE
-    # resolves the subcircuit/component TYPE from the CircId prefix; `label` carries
-    # the human ref (D6, R1, ...). Pin ids are "<CircId>-<pinid>".
-    pos = {}        # ref -> (x, y)
+    # Layout. CircId MUST be "<SimulIDE-part>-<uid>" — SimulIDE resolves the TYPE
+    # from the CircId prefix; `label` carries the human ref. Pin ids = "<CircId>-<id>".
+    # Components are spaced on a wide grid so DIP bodies never overlap; each pin's
+    # absolute position is recorded so its net-Tunnel can sit right at the pin
+    # (no long cross-component wires — Tunnels carry the connectivity by name).
+    pos = {}                     # ref -> (x, y)
+    pin_xy = {}                  # (ref, num) -> (abs_x, abs_y, angle)
     uid = 0
     A = 'mainComp="false" Show_id="true" rotation="0" hflip="1" vflip="1"'
-    x, y, col = -480, -360, 0
+    COLW, ROWH, NCOL = 360, 360, 6
+    x0, y0, col = -900, -700, 0
     for ref, c in sorted(comps.items()):
         m = PART_MAP.get(c["part"])
-        px, py = x + (col % 8) * 160, y + (col // 8) * 160
+        px, py = x0 + (col % NCOL) * COLW, y0 + (col // NCOL) * ROWH
         col += 1; pos[ref] = (px, py)
         if not m:
-            warns.append(f"{ref}: no mapping for part '{c['part']}' — skipped")
-            continue
+            warns.append(f"{ref}: no mapping for part '{c['part']}' — skipped"); continue
         k = m["kind"]
         def newcid(name):
             nonlocal uid; uid += 1
@@ -130,49 +139,57 @@ def main():
         if k == "z80":
             cid = newcid("Z80")
             items.append(f'<item itemtype="MCU" CircId="{cid}" {A} Pos="{px},{py}" label="{ref}" Producer="Zilog" />')
-            for num, pid in Z80_PINS.items():
-                pin_id[(ref, str(num))] = f"{cid}-{pid}"
+            # MCU pin coords unknown -> synthesize a DIP-40-like 2-column layout
+            for i, num in enumerate(sorted(Z80_PINS, key=int)):
+                pid = Z80_PINS[num]; pin_id[(ref, str(num))] = f"{cid}-{pid}"
+                side = 0 if i < 19 else 1
+                pin_xy[(ref, str(num))] = (px + (88 if side else -8), py + (i - 19*side) * 8, 0 if side else 180)
         elif k == "ic":
             pm = package_pinmap(m["sim"], m.get("ls", False))
             if not pm:
                 warns.append(f"{ref}: package for '{m['sim']}' not found — skipped"); continue
             cid = newcid(m["sim"])
             items.append(f'<item itemtype="Subcircuit" CircId="{cid}" {A} Pos="{px},{py}" label="{ref}" />')
-            for num, pid in pm.items():
+            for num, (pid, pxo, pyo, ang) in pm.items():
                 pin_id[(ref, num)] = f"{cid}-{pid}"
+                pin_xy[(ref, num)] = (px + pxo, py + pyo, ang)
             if m.get("note"): warns.append(f"{ref}: {m['sim']} ({m['note']})")
         elif k in ("R", "C"):
             it = "Resistor" if k == "R" else "Capacitor"
             cid = newcid(it)
             items.append(f'<item itemtype="{it}" CircId="{cid}" {A} Pos="{px},{py}" label="{ref}" Value="{c["value"]}" />')
             pin_id[(ref, "1")] = f"{cid}-lPin"; pin_id[(ref, "2")] = f"{cid}-rPin"
+            pin_xy[(ref, "1")] = (px - 8, py, 180); pin_xy[(ref, "2")] = (px + 24, py, 0)
         elif k == "xtal":
             cid = newcid("Clock")
             items.append(f'<item itemtype="Clock" CircId="{cid}" {A} Pos="{px},{py}" label="{ref}" Freq="14000000 Hz" Out="true" Running="true" />')
-            pin_id[(ref, "2")] = f"{cid}-outnod"
+            pin_id[(ref, "2")] = f"{cid}-outnod"; pin_xy[(ref, "2")] = (px + 24, py, 0)
             warns.append(f"{ref}: crystal modeled as an ideal 14 MHz Clock source")
         elif k == "mem":
             warns.append(f"{ref}: {m.get('note','memory built-in')} — skipped in v0")
 
-    # Nets via Tunnels (named-net labels, SimulIDE's idiom — like KiCad net labels):
-    # attach a Tunnel(Name=net) to every pin on the net; SimulIDE merges same-named
-    # tunnels. Scales to any fan-out, no node chaining. (Pattern from the ZX example.)
-    def sani(nm):  # Tunnel Name: keep it simple/valid (active-low ~ -> 'n')
+    # Nets via Tunnels (named-net labels = SimulIDE's idiom, like KiCad net labels).
+    # The Tunnel is placed right at its pin (offset outward by the pin's angle), so the
+    # pin→tunnel connector is a short stub — there are NO long traces across components.
+    def sani(nm):
         return re.sub(r'[^A-Za-z0-9_]', '_', nm.replace('~', 'n'))
-    nodes = []   # (reusing the emit list name below; tunnels+connectors go here)
-    conns, ti, tx = [], 0, -480
-    for name, endpoints in nets:
-        eps = [pin_id.get((r, p)) for (r, p) in endpoints]
-        eps = [p for p in eps if p]
+    DIR = {0: (1, 0), 180: (-1, 0), 90: (0, 1), 270: (0, -1)}
+    nodes = []          # tunnels (emitted alongside items)
+    conns, ti = [], 0
+    for idx, (name, endpoints) in enumerate(nets):
+        eps = [(r, p, pin_id.get((r, p))) for (r, p) in endpoints]
+        eps = [(r, p, sp) for (r, p, sp) in eps if sp]
         if len(eps) < 2:
             continue
         nm = sani(name)
-        for p in eps:
+        for r, p, sp in eps:
+            ax, ay, ang = pin_xy.get((r, p), (pos.get(r, (0, 0))[0], pos.get(r, (0, 0))[1] + idx, 0))
+            dx, dy = DIR.get(ang, (1, 0))
+            tj = (ax + dx * 28, ay + dy * 28)          # tunnel sits 28px off the pin
             tcid = f"Tunnel-{ti}"; ti += 1
-            ty = 460 + (ti % 40) * 12
-            nodes.append(f'<item itemtype="Tunnel" CircId="{tcid}" mainComp="false" Pos="{tx + (ti//40)*40},{ty}" Name="{nm}" />')
+            nodes.append(f'<item itemtype="Tunnel" CircId="{tcid}" mainComp="false" rotation="0" Pos="{tj[0]},{tj[1]}" Name="{nm}" />')
             uid += 1
-            conns.append(f'<item itemtype="Connector" uid="con-{uid}" startpinid="{p}" endpinid="{tcid}-pin" pointList="0,0,0,0" />')
+            conns.append(f'<item itemtype="Connector" uid="con-{uid}" startpinid="{sp}" endpinid="{tcid}-pin" pointList="{ax},{ay},{tj[0]},{tj[1]}" />')
 
     os.makedirs(os.path.dirname(OUT), exist_ok=True)
     with open(OUT, "w") as f:
