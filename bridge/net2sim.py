@@ -162,7 +162,45 @@ def main():
             pin_id[(ref, "2")] = f"{cid}-outnod"; pin_xy[(ref, "2")] = (px + 24, py, 0)
             warns.append(f"{ref}: crystal modeled as an ideal 14 MHz Clock source")
         elif k == "mem":
-            warns.append(f"{ref}: {m.get('note','memory built-in')} — skipped in v0")
+            pass   # ROM/DRAM emitted once below as monolithic memory items
+
+    # ROM + DRAM as single SimulIDE memory items, wired by NET NAME (per-chip
+    # 27128/РУ5 pins are dropped — standard sim modeling). ROM = Memory (16Kx8),
+    # DRAM = DynamicMemory (64Kx8, real RAS/CAS). NOTE: DRAM data is bidirectional on
+    # out0-7 tied straight to the D bus — the board's DOUT→DD→D43 read-latch path is
+    # not modeled. Load a ROM image in the GUI for the CPU to boot.
+    # Full electrical attribute set the Memory/DynamicMemory components expect
+    # (omitting these segfaults SimulIDE on load).
+    ELEC = ('Show_Val="false" idLabPos="-16,-24" labelrot="0" valLabPos="-16,20" valLabRot="0" '
+            'Input_High_V="2.5 V" Input_Low_V="2.5 V" Input_Imped="1e+09 Ω" '
+            'Out_High_V="5 V" Out_Low_V="0 V" Out_Imped="40 Ω" Inverted="false" '
+            'Open_Collector="false" pd_n="1 _Gates" Tpd_ps="10000 ps" Tr_ps="3000 ps" Tf_ps="4000 ps"')
+    present = {c["part"] for c in comps.values()}
+    netmap = {}
+    for nm, eps in nets:
+        netmap.setdefault(nm, []).extend(eps)
+    def mem_attach(ref_, cid_, key, simpin, netname, mx, my):
+        pin_id[(ref_, key)] = f"{cid_}-{simpin}"
+        pin_xy[(ref_, key)] = (mx, my, 0)
+        netmap.setdefault(netname, []).append((ref_, key))
+    if "27128" in present:
+        uid += 1; cid = f"Memory-{uid}"
+        items.append(f'<item itemtype="Memory" CircId="{cid}" {A} Pos="900,-360" label="D36 ROM(27128)" Address_Bits="14 _Bits" Data_Bits="8 _Bits" Persistent="true" Asynch="true" {ELEC} />')
+        for i in range(14): mem_attach("ROM", cid, f"in{i}",  f"in{i}",  f"A{i}", 900, -360 + i*8)
+        for i in range(8):  mem_attach("ROM", cid, f"out{i}", f"out{i}", f"D{i}", 990, -360 + i*8)
+        mem_attach("ROM", cid, "cs", "Pin_Cs",        "~ROMCS", 900, -392)
+        mem_attach("ROM", cid, "oe", "Pin_outEnable", "~ROMOE", 900, -384)
+        warns.append("D36 -> one Memory(16Kx8); load a ROM image in the GUI to boot")
+    if "K565RU5" in present:
+        uid += 1; cid = f"DynamicMemory-{uid}"
+        items.append(f'<item itemtype="DynamicMemory" CircId="{cid}" {A} Pos="900,-120" label="DRAM 64Kx8(D28-35)" Row_Bits="8 _Bits" Column_Bits="8 _Bits" Data_Bits="8 _Bits" {ELEC} />')
+        for i in range(8): mem_attach("DRAM", cid, f"in{i}",  f"in{i}",  f"VA{i}", 900, -120 + i*8)
+        for i in range(8): mem_attach("DRAM", cid, f"out{i}", f"out{i}", f"D{i}", 990, -120 + i*8)
+        mem_attach("DRAM", cid, "ras", "Pin_Ras", "~RAS", 900, -150)
+        mem_attach("DRAM", cid, "cas", "Pin_Cas", "~CAS", 900, -142)
+        mem_attach("DRAM", cid, "we",  "Pin_We",  "~WR",  900, -134)
+        warns.append("D28-D35 -> one DynamicMemory(64Kx8); data out0-7 on the D bus (DD->D43 path not modeled)")
+    nets = [(nm, eps) for nm, eps in netmap.items()]
 
     # Drawn wires: each net is a chain of pins joined by 3-pin Nodes at the net's
     # centroid, with direct straight pointLists. Compact; wires may cross each other
