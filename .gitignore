@@ -25,3 +25,6 @@ build/
 skidl_*
 kicad/skidl/*.svg
 kicad/skidl/*.json
+
+# compiled boot test
+tests/boot/boot
