@@ -8,7 +8,7 @@ static void   wb(void* u, uint16_t a, uint8_t v){ (void)u; if(a>=0x4000) mem[a]=
 static uint8_t pin(z80* z, uint8_t port){ (void)z; (void)port; return 0xBF; } // FE: no keys, EAR=0
 static void   pout(z80* z, uint8_t port, uint8_t v){ (void)z;(void)port;(void)v; }
 int main(int argc, char** argv){
-    const char* romf = argc>1? argv[1] : "/home/anatolie/ai3/s4/roms/sintez-M.rom";
+    const char* romf = argc>1? argv[1] : "/home/anatolie/ai3/s4/roms/sintez2.rom";
     FILE* f=fopen(romf,"rb"); if(!f){ printf("ROM open fail\n"); return 2; }
     size_t n=fread(mem,1,16384,f); fclose(f);
     printf("ROM loaded: %zu bytes from %s\n", n, romf);
