@@ -115,20 +115,19 @@ def main():
     pin_id = {}   # (ref, pinnum) -> SimulIDE "CircId-pinid", or None if skipped
     circid = {}   # ref -> CircId
 
-    # Layout. CircId MUST be "<SimulIDE-part>-<uid>" — SimulIDE resolves the TYPE
-    # from the CircId prefix; `label` carries the human ref. Pin ids = "<CircId>-<id>".
-    # Components are spaced on a wide grid so DIP bodies never overlap; each pin's
-    # absolute position is recorded so its net-Tunnel can sit right at the pin
-    # (no long cross-component wires — Tunnels carry the connectivity by name).
-    pos = {}                     # ref -> (x, y)
-    pin_xy = {}                  # (ref, num) -> (abs_x, abs_y, angle)
-    uid = 0
+    # Layout = single ROW of components with a wide ROUTING CHANNEL below them.
+    # Drawn wires (Connectors) are routed orthogonally: each pin escapes sideways,
+    # drops into the channel, and joins a per-net horizontal TRACK at a unique Y.
+    # Because every track lives in the channel BELOW the components, no wire ever
+    # crosses a component body (tracks only cross each other). CircId MUST be
+    # "<SimulIDE-part>-<uid>" (SimulIDE reads the TYPE from the prefix); label=ref.
+    pos = {}; pin_xy = {}; uid = 0
     A = 'mainComp="false" Show_id="true" rotation="0" hflip="1" vflip="1"'
-    COLW, ROWH, NCOL = 360, 360, 6
-    x0, y0, col = -900, -700, 0
+    SLOT, ROWY = 220, 0
+    x0, col = -3600, 0
     for ref, c in sorted(comps.items()):
         m = PART_MAP.get(c["part"])
-        px, py = x0 + (col % NCOL) * COLW, y0 + (col // NCOL) * ROWH
+        px, py = x0 + col * SLOT, ROWY
         col += 1; pos[ref] = (px, py)
         if not m:
             warns.append(f"{ref}: no mapping for part '{c['part']}' — skipped"); continue
@@ -139,11 +138,10 @@ def main():
         if k == "z80":
             cid = newcid("Z80")
             items.append(f'<item itemtype="MCU" CircId="{cid}" {A} Pos="{px},{py}" label="{ref}" Producer="Zilog" />')
-            # MCU pin coords unknown -> synthesize a DIP-40-like 2-column layout
             for i, num in enumerate(sorted(Z80_PINS, key=int)):
                 pid = Z80_PINS[num]; pin_id[(ref, str(num))] = f"{cid}-{pid}"
                 side = 0 if i < 19 else 1
-                pin_xy[(ref, str(num))] = (px + (88 if side else -8), py + (i - 19*side) * 8, 0 if side else 180)
+                pin_xy[(ref, str(num))] = (px + (96 if side else -8), py + (i - 19*side) * 8, 0 if side else 180)
         elif k == "ic":
             pm = package_pinmap(m["sim"], m.get("ls", False))
             if not pm:
@@ -168,28 +166,33 @@ def main():
         elif k == "mem":
             warns.append(f"{ref}: {m.get('note','memory built-in')} — skipped in v0")
 
-    # Nets via Tunnels (named-net labels = SimulIDE's idiom, like KiCad net labels).
-    # The Tunnel is placed right at its pin (offset outward by the pin's angle), so the
-    # pin→tunnel connector is a short stub — there are NO long traces across components.
-    def sani(nm):
-        return re.sub(r'[^A-Za-z0-9_]', '_', nm.replace('~', 'n'))
-    DIR = {0: (1, 0), 180: (-1, 0), 90: (0, 1), 270: (0, -1)}
-    nodes = []          # tunnels (emitted alongside items)
-    conns, ti = [], 0
-    for idx, (name, endpoints) in enumerate(nets):
-        eps = [(r, p, pin_id.get((r, p))) for (r, p) in endpoints]
-        eps = [(r, p, sp) for (r, p, sp) in eps if sp]
-        if len(eps) < 2:
-            continue
-        nm = sani(name)
-        for r, p, sp in eps:
-            ax, ay, ang = pin_xy.get((r, p), (pos.get(r, (0, 0))[0], pos.get(r, (0, 0))[1] + idx, 0))
-            dx, dy = DIR.get(ang, (1, 0))
-            tj = (ax + dx * 28, ay + dy * 28)          # tunnel sits 28px off the pin
-            tcid = f"Tunnel-{ti}"; ti += 1
-            nodes.append(f'<item itemtype="Tunnel" CircId="{tcid}" mainComp="false" rotation="0" Pos="{tj[0]},{tj[1]}" Name="{nm}" />')
-            uid += 1
-            conns.append(f'<item itemtype="Connector" uid="con-{uid}" startpinid="{sp}" endpinid="{tcid}-pin" pointList="{ax},{ay},{tj[0]},{tj[1]}" />')
+    # Channel router: drawn orthogonal wires, one horizontal track per net, in the
+    # channel below the row. Per net: a Node under each pin's escape point on the
+    # track (3-pin junction), chained left→right; pin→node drops vertically.
+    nodes = []          # Node items (emitted with the components)
+    conns, nidx = [], 0
+    CH_Y0 = 280         # channel starts below the tallest part (Z80 ~160 px)
+    routable = [(nm, [(r, p) for (r, p) in eps if pin_id.get((r, p))]) for nm, eps in nets]
+    routable = [(nm, e) for nm, e in routable if len(e) >= 2]
+    def con(a, b, pts):
+        nonlocal uid; uid += 1
+        conns.append(f'<item itemtype="Connector" uid="con-{uid}" startpinid="{a}" endpinid="{b}" pointList="{pts}" />')
+    for ni, (name, eps) in enumerate(routable):
+        ty = CH_Y0 + ni * 12                       # this net's track Y (unique)
+        pts = []                                    # (escape_x, pin_abs_x, pin_abs_y, simpinid)
+        for r, p in eps:
+            ax, ay, ang = pin_xy[(r, p)]
+            ex = ax + (24 if ang == 0 else -24)     # escape just off the pin's side
+            pts.append((ex, ax, ay, pin_id[(r, p)]))
+        pts.sort(key=lambda t: t[0])
+        nd = []
+        for (ex, ax, ay, sp) in pts:               # a node per pin, sitting on the track
+            cid = f"Node-{nidx}"; nidx += 1; nd.append((cid, ex, ax, ay, sp))
+            nodes.append(f'<item itemtype="Node" CircId="{cid}" mainComp="false" Pos="{ex},{ty}" />')
+        for i, (cid, ex, ax, ay, sp) in enumerate(nd):     # pin -> its node (escape + drop)
+            con(sp, f"{cid}-0", f"{ax},{ay},{ex},{ay},{ex},{ty}")
+        for i in range(len(nd) - 1):                       # chain nodes along the track
+            con(f"{nd[i][0]}-2", f"{nd[i+1][0]}-1", f"{nd[i][1]},{ty},{nd[i+1][1]},{ty}")
 
     os.makedirs(os.path.dirname(OUT), exist_ok=True)
     with open(OUT, "w") as f:
@@ -200,7 +203,7 @@ def main():
         f.write("\n</circuit>\n")
 
     print(f"wrote {OUT}")
-    print(f"components: {len(comps)} | items: {len(items)} | tunnels: {len(nodes)} | connectors: {len(conns)}")
+    print(f"components: {len(comps)} | items: {len(items)} | nodes: {len(nodes)} | connectors: {len(conns)}")
     if warns:
         print("\nNOTES / coverage:")
         for w in warns: print("  -", w)

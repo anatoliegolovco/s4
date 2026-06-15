@@ -64,8 +64,12 @@ overall "boots to the © prompt" bar (spec T7). Contention tests must NOT pass.
   - **Z80** → `itemtype="MCU"` (pins PORTA*/PORTD*/CPORT0*); 74xx → `Subcircuit`
     (pin number→id from SimulIDE `.package`, `_LS` variant for К555 timing);
     R/C → Resistor/Capacitor; crystal → 14 MHz Clock.
-  - **Nets → Tunnels** (named-net labels, SimulIDE's idiom — scales to any fan-out,
-    like KiCad net labels). Run: 36 comps → 27 items, 98 tunnels, 98 connectors.
+  - **Nets → drawn orthogonal wires, channel-routed.** Components sit in a single
+    ROW; each net gets a unique horizontal TRACK in the channel BELOW the row, with
+    a 3-pin Node under each pin and a vertical drop from pin→track. Because every
+    track is below the components, **no wire crosses a component body** (wires only
+    cross each other — SimulIDE has no auto-router; confirmed via its docs). Run:
+    36 comps → 27 items, 98 nodes, 171 connectors.
   ```bash
   .venv/bin/python bridge/net2sim.py
   DISPLAY=:0 simulide sim/circuits/sintez2.sim1 &   # opens cleanly
