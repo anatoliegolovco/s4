@@ -180,11 +180,27 @@ K1533KP11 = _dip("K1533KP11", "Package_DIP:DIP-16_W7.62mm", [
     (16, "VCC", PWR),
 ], value="К1533КП11 (74LS257)")
 
-# К544СА3 = analog precision comparator (tape-IN, D49), DIP-14.
+# К544СА3 = analog precision comparator (tape-IN, D49), DIP-14. Pin numbers per the
+# board trace: 3=IN-(W2 ref), 4=IN+(W1 signal), 6=Vee/GND, 9=QK(out), 11=Vcc, 2=Vcc node.
 K544SA3 = _dip("K544SA3", "Package_DIP:DIP-14_W7.62mm", [
-    (1, "W1", I), (2, "QE", O), (3, "C", I), (5, "NC1", NC), (6, "NC2", NC),
-    (7, "U2", PWR), (8, "QK", O), (9, "NC3", NC), (11, "U1", PWR), (14, "W2", I),
+    (2, "Vs2", PWR), (3, "INn", I), (4, "INp", I), (6, "Vee", PWR),
+    (8, "QE", O), (9, "QK", O), (11, "Vcc", PWR),
 ], value="К544СА3 (comparator)")
+
+# К1533ЛП5 = 74LS86 quad 2-input XOR, DIP-14 (FLASH/attribute XOR).
+K1533LP5 = _dip("K1533LP5", "Package_DIP:DIP-14_W7.62mm", [
+    (1, "1A", I), (2, "1B", I), (3, "1Y", O), (4, "2A", I), (5, "2B", I),
+    (6, "2Y", O), (7, "GND", PWR), (8, "3Y", O), (9, "3A", I), (10, "3B", I),
+    (11, "4Y", O), (12, "4A", I), (13, "4B", I), (14, "VCC", PWR),
+], value="К1533ЛП5 (74LS86)")
+
+# К561ИЕ10 = CD4520 dual 4-bit binary counter, DIP-16 (CMOS).
+K561IE10 = _dip("K561IE10", "Package_DIP:DIP-16_W7.62mm", [
+    (1, "CP0a", I), (2, "Q0a", O), (3, "Q1a", O), (4, "Q2a", O), (5, "Q3a", O),
+    (6, "CP1a", I), (7, "MRa", I), (8, "GND", PWR), (9, "MRb", I), (10, "CP1b", I),
+    (11, "Q0b", O), (12, "Q1b", O), (13, "Q2b", O), (14, "Q3b", O), (15, "CP0b", I),
+    (16, "VCC", PWR),
+], value="К561ИЕ10 (CD4520)")
 
 # ---------------------------------------------------------------- passives
 def R(value):

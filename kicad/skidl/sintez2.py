@@ -310,6 +310,40 @@ for _nm, _eps in _disknets.items():
     for _ep in _eps:
         _r, _pn = _ep.split("."); _n += _dp[_r][int(_pn)]
 
+# ---- block 8: remaining glue/sync-decode gates + FLASH XOR + tape ----------
+# Instantiate the rest of the IC inventory so all 51 are present + powered. Their
+# combinational inter-gate nets (H/V sync decode, glue) are only partly resolved by
+# the trace-verify workflow (wires cross without junctions in the redraw) — wired
+# where confident, left as TODO otherwise (ERC will flag the open pins).
+for _ref, _fac in [("D7", P.K1533LI1), ("D10", P.K1533LA4), ("D11", P.K561IE10),
+                   ("D12", P.K1533TM2), ("D14", P.K1533LE1), ("D15", P.K1533LN1),
+                   ("D16", P.K1533LN1), ("D18", P.K1533LP5), ("D20", P.K1533TM2),
+                   ("D21", P.K1533TM2), ("D27", P.K1533LA4), ("D37", P.K1533LA4)]:
+    _g = _fac(ref=_ref); _g["VCC"] += vcc; _g["GND"] += gnd
+    if _ref == "D18":
+        # FLASH/attribute XOR: serial pixel ^ FLASH -> SCREEN pixel stream
+        _g["3A"] += pix_ser; _g["3B"] += Net("FLASH"); _g["3Y"] += Net("SCREEN")
+
+# tape: D49 К544СА3 comparator squares the tape-IN signal; VT2/VT13 push-pull -> beep.
+d49 = P.K544SA3(ref="D49"); d49["Vcc"] += vcc; d49["Vs2"] += vcc; d49["Vee"] += gnd
+vt2 = P.BJT("КТ315")(ref="VT2"); vt13 = P.BJT("КТ315")(ref="VT13"); ba1 = P.SPK("ЗП-3")(ref="BA1")
+x5 = P.CONN(3, "Tape")(ref="X5")
+r37 = P.R("1.8M")(ref="R37"); r38 = P.R("3k")(ref="R38"); r39 = P.R("5.1k")(ref="R39")
+r36 = P.R("5.1k")(ref="R36"); r69 = P.R("33k")(ref="R69"); r71 = P.R("820")(ref="R71")
+c8  = P.C("0.022u")(ref="C8")
+tape_in = Net("TAPE_IN"); tape_qk = Net("D49_QK"); sound = Net("SOUND")
+x5[3] += tape_in; x5[2] += gnd; x5[1] += Net("TAPE_OUT")          # X5: 3=IN,2=GND,1=OUT
+c8[1] += tape_in; c8[2] += d49["INp"]; r36[2] += d49["INp"]; r36[1] += vcc
+r37[1] += d49["INp"]; r37[2] += tape_qk
+d49["QK"] += tape_qk; r38[1] += tape_qk; r38[2] += vcc; r39[2] += tape_qk; r39[1] += A[0]
+# beep push-pull (verifier-corrected nodes):
+vt13c = Net("VT13_COLL"); vt13b = Net("VT13_BASE"); vt2c = Net("SPK_VT2_COLL")
+r71[1] += vcc; r71[2] += vt13c; vt13["C"] += vt13c                # VT13 collector -> R71 -> +5V
+vt13["B"] += vt13b; r69[2] += vt13b; ba1[1] += vt13b              # VT13 base node + BA1.1
+vt2["C"] += vt2c; r69[1] += vt2c; ba1[2] += vt2c                  # VT2 collector node + BA1.2
+vt2["E"] += gnd; vt13["E"] += gnd
+vt2["B"] += sound                                                # beep drive (port 0xFE) — source TODO
+
 # ---- generate outputs ------------------------------------------------------
 ERC()   # prints its own '<n> errors / <n> warnings found' summary
 generate_netlist(file_=NETLIST)
