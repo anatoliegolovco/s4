@@ -136,7 +136,7 @@ d13["3A"] += mem_stb; d13["3B"] += cas_stb; d13["3Y"] += cas_n   # -> /CAS
 # select/enable timing) is the screen-address generator — the most intricate logic
 # on the board. It must be traced pin-by-pin from the scan before it is trustworthy,
 # so it is deliberately left as a dedicated task rather than guessed here.
-d5  = P.K1533KP12(ref="D5");  d5["VCC"]  += vcc; d5["GND"]  += gnd
+d5  = P.K1533KP11(ref="D5");  d5["VCC"]  += vcc; d5["GND"]  += gnd   # КП11 (74257), corrected per validation
 d23 = P.K1533KP12(ref="D23"); d23["VCC"] += vcc; d23["GND"] += gnd
 d24 = P.K1533KP12(ref="D24"); d24["VCC"] += vcc; d24["GND"] += gnd
 d25 = P.K1533KP12(ref="D25"); d25["VCC"] += vcc; d25["GND"] += gnd
