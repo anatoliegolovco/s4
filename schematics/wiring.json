@@ -50,7 +50,14 @@
         "D10C": "К1533ЛА4 NAND: in pins 9/10/11 = V4/V5/V6 -> out 8 (vertical decode)",
         "D13A": "К1533ЛИ1 AND: out pin3 = SCREEN",
         "D18B": "К1533ЛП5 XOR: in 4/5 -> out pin6 = 'C' (pixel^FLASH); CONFIRMS D18=ЛП5 (not ЛН1)",
-        "still_open": "exact set/reset + C-clock sources of D15B/D16A/D16B (VSYNC flip-flops), D10A/D7C inputs, /VS final gate (D14D/D13A) — continue tracing"
+        "D10C": "К1533ЛА4 NAND: in 9/10/11 = V4/V5/V6 -> out 8 (vertical-region decode)",
+        "D12A": "К1533ТМ2: /Q(6) = BORDER (border flip-flop)",
+        "D11": "К1533ИЕ10 (CD4520) dual counter -> FLASH (the ~0.6 Hz attribute-flash timer)",
+        "D14D": "К1533ЛЕ1 NOR: in 11/12 -> out 13 = GH (horizontal gate/blank)",
+        "D13A": "К1533ЛИ1 AND: in1=D18B.6('C'=pixel^FLASH), in2 -> out 3 = SCREEN (final pixel stream)",
+        "D16A_D16B": "К1533ТМ2 pair = VSYNC flip-flops, set/reset off D10C (V-decode) + HS/GH; D16B -> /VS",
+        "D17A": "К1533ЛА3 NAND + R72 270/C38 51p/R11 270/C3 51p = RC-delayed blanking",
+        "still_open": "exact set/reset/clock PIN sources of the D16A/D16B/D12A/D15B flip-flops (which V/H bit to /S vs /R vs C), and D10A/D7C inputs — the count-decode topology; continue tracing"
       },
       "status": "counters + HSYNC chain (D9B/D14A/D21B) + SCREEN/FLASH (D13A/D18B) traced exactly; VSYNC flip-flop set/reset sources still being traced" },
     { "id": "addr-arbitration", "members": ["D5","D23","D24","D25","D26","D38"],
