@@ -9,6 +9,7 @@ schematics/sources/*
 __pycache__/
 *.pyc
 sim/circuits/*.sim
+sim/circuits/*.sim1
 !sim/circuits/.gitkeep
 *.vcd
 *.net

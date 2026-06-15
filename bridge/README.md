@@ -57,4 +57,21 @@ trace-verify workflow could NOT resolve visually (see
 the arbitration screen-address select, RAS-before-CAS, beep/port-0xFE — and the
 overall "boots to the © prompt" bar (spec T7). Contention tests must NOT pass.
 
-(Skeleton — net2sim.py not yet implemented; this README is the build spec.)
+## Status
+
+- **net2sim.py — v0 WORKING.** Parses `kicad/sintez2.net`, maps parts (Z80 by a
+  fixed pin table; 74xx via SimulIDE `.package` number→id; R/C/crystal), and emits
+  a well-formed `sim/circuits/sintez2.sim1` with one Node + Connectors per net.
+  Current run: 36 components → 27 items, 25 nets, 100 connectors.
+  ```bash
+  .venv/bin/python bridge/net2sim.py
+  ```
+  Coverage caveats it prints: DRAM (D28–D35) + ROM (D36) skipped (SimulIDE Memory
+  built-ins, pin-map = T5/next); D5 follows the netlist (still КП12 in SKiDL —
+  set to КП11 when the arbitration block is finished); КП12→74HC153 (non-tristate),
+  ИР16→74XX166 (8- vs 4-bit), ЛА4→74HC00 (no 3-in NAND in lib) are approximations.
+- **Next:** (a) add ROM/DRAM as SimulIDE Memory items with real pin maps;
+  (b) give Connectors real routing geometry + load-test in the SimulIDE GUI;
+  (c) set per-part family timing (Tpd/Out_V from parts_map) on each Subcircuit.
+
+(`sim/circuits/*.sim1` is a generated build artifact — gitignored; regenerate.)
