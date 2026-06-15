@@ -115,19 +115,17 @@ def main():
     pin_id = {}   # (ref, pinnum) -> SimulIDE "CircId-pinid", or None if skipped
     circid = {}   # ref -> CircId
 
-    # Layout = single ROW of components with a wide ROUTING CHANNEL below them.
-    # Drawn wires (Connectors) are routed orthogonally: each pin escapes sideways,
-    # drops into the channel, and joins a per-net horizontal TRACK at a unique Y.
-    # Because every track lives in the channel BELOW the components, no wire ever
-    # crosses a component body (tracks only cross each other). CircId MUST be
-    # "<SimulIDE-part>-<uid>" (SimulIDE reads the TYPE from the prefix); label=ref.
+    # Layout = COMPACT grid that fits on one canvas view. Wires are drawn lines
+    # routed directly pin→pin (overlap between wires is fine — SimulIDE has no
+    # auto-router). CircId MUST be "<SimulIDE-part>-<uid>" (SimulIDE reads the TYPE
+    # from the prefix); label=ref.
     pos = {}; pin_xy = {}; uid = 0
     A = 'mainComp="false" Show_id="true" rotation="0" hflip="1" vflip="1"'
-    SLOT, ROWY = 220, 0
-    x0, col = -3600, 0
+    NCOL, SX, SY = 7, 200, 210
+    x0, y0, col = -680, -360, 0
     for ref, c in sorted(comps.items()):
         m = PART_MAP.get(c["part"])
-        px, py = x0 + col * SLOT, ROWY
+        px, py = x0 + (col % NCOL) * SX, y0 + (col // NCOL) * SY
         col += 1; pos[ref] = (px, py)
         if not m:
             warns.append(f"{ref}: no mapping for part '{c['part']}' — skipped"); continue
@@ -166,33 +164,34 @@ def main():
         elif k == "mem":
             warns.append(f"{ref}: {m.get('note','memory built-in')} — skipped in v0")
 
-    # Channel router: drawn orthogonal wires, one horizontal track per net, in the
-    # channel below the row. Per net: a Node under each pin's escape point on the
-    # track (3-pin junction), chained left→right; pin→node drops vertically.
-    nodes = []          # Node items (emitted with the components)
+    # Drawn wires: each net is a chain of pins joined by 3-pin Nodes at the net's
+    # centroid, with direct straight pointLists. Compact; wires may cross each other
+    # (fine — no auto-router in SimulIDE).
+    nodes = []
     conns, nidx = [], 0
-    CH_Y0 = 280         # channel starts below the tallest part (Z80 ~160 px)
-    routable = [(nm, [(r, p) for (r, p) in eps if pin_id.get((r, p))]) for nm, eps in nets]
-    routable = [(nm, e) for nm, e in routable if len(e) >= 2]
     def con(a, b, pts):
         nonlocal uid; uid += 1
         conns.append(f'<item itemtype="Connector" uid="con-{uid}" startpinid="{a}" endpinid="{b}" pointList="{pts}" />')
-    for ni, (name, eps) in enumerate(routable):
-        ty = CH_Y0 + ni * 12                       # this net's track Y (unique)
-        pts = []                                    # (escape_x, pin_abs_x, pin_abs_y, simpinid)
-        for r, p in eps:
-            ax, ay, ang = pin_xy[(r, p)]
-            ex = ax + (24 if ang == 0 else -24)     # escape just off the pin's side
-            pts.append((ex, ax, ay, pin_id[(r, p)]))
-        pts.sort(key=lambda t: t[0])
+    for name, endpoints in nets:
+        eps = [(r, p) for (r, p) in endpoints if pin_id.get((r, p))]
+        if len(eps) < 2:
+            continue
+        sp = [pin_id[(r, p)] for (r, p) in eps]
+        XY = [pin_xy[(r, p)][:2] for (r, p) in eps]
+        if len(sp) == 2:
+            con(sp[0], sp[1], f"{XY[0][0]},{XY[0][1]},{XY[1][0]},{XY[1][1]}"); continue
+        n = len(sp)
+        cx = sum(x for x, _ in XY) // n; cy = sum(y for _, y in XY) // n
         nd = []
-        for (ex, ax, ay, sp) in pts:               # a node per pin, sitting on the track
-            cid = f"Node-{nidx}"; nidx += 1; nd.append((cid, ex, ax, ay, sp))
-            nodes.append(f'<item itemtype="Node" CircId="{cid}" mainComp="false" Pos="{ex},{ty}" />')
-        for i, (cid, ex, ax, ay, sp) in enumerate(nd):     # pin -> its node (escape + drop)
-            con(sp, f"{cid}-0", f"{ax},{ay},{ex},{ay},{ex},{ty}")
-        for i in range(len(nd) - 1):                       # chain nodes along the track
-            con(f"{nd[i][0]}-2", f"{nd[i+1][0]}-1", f"{nd[i][1]},{ty},{nd[i+1][1]},{ty}")
+        for k in range(n - 2):
+            cid = f"Node-{nidx}"; nidx += 1; nd.append(cid)
+            nodes.append(f'<item itemtype="Node" CircId="{cid}" mainComp="false" Pos="{cx+k*8},{cy}" />')
+        con(sp[0], f"{nd[0]}-0", f"{XY[0][0]},{XY[0][1]},{cx},{cy}")
+        for i in range(n - 2):
+            con(f"{nd[i]}-1", sp[i+1], f"{cx+i*8},{cy},{XY[i+1][0]},{XY[i+1][1]}")
+        for i in range(n - 3):
+            con(f"{nd[i]}-2", f"{nd[i+1]}-0", f"{cx+i*8},{cy},{cx+(i+1)*8},{cy}")
+        con(f"{nd[-1]}-2", sp[-1], f"{cx+(n-3)*8},{cy},{XY[-1][0]},{XY[-1][1]}")
 
     os.makedirs(os.path.dirname(OUT), exist_ok=True)
     with open(OUT, "w") as f:
