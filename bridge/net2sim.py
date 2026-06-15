@@ -185,12 +185,23 @@ def main():
         netmap.setdefault(netname, []).append((ref_, key))
     if "27128" in present:
         uid += 1; cid = f"Memory-{uid}"
-        items.append(f'<item itemtype="Memory" CircId="{cid}" {A} Pos="900,-360" label="D36 ROM(27128)" Address_Bits="14 _Bits" Data_Bits="8 _Bits" Persistent="true" Asynch="true" {ELEC} />')
+        # preload a ZX-Spectrum-48K-compatible 16K ROM into the Memory's Mem= array
+        # (SimulIDE stores contents as comma-separated signed int8). roms/sintez-M.rom
+        # is the José Leandro Sintez-M dump — verified ZX48 ROM (start DI/XOR A/JP $11CB,
+        # IM1 handler at $0038, © glyph at the tail).
+        romf = os.path.join(ROOT, "roms", "sintez-M.rom")
+        memattr = ""
+        if os.path.exists(romf):
+            rb = open(romf, "rb").read()[:16384]
+            mem = ",".join(str(b - 256 if b > 127 else b) for b in rb)
+            memattr = f' Mem="{mem}"'
+            warns.append(f"D36 ROM preloaded from roms/sintez-M.rom ({len(rb)} bytes, ZX48-compatible)")
+        items.append(f'<item itemtype="Memory" CircId="{cid}" {A} Pos="900,-360" label="D36 ROM(27128)" Address_Bits="14 _Bits" Data_Bits="8 _Bits" Persistent="true" Asynch="true"{memattr} {ELEC} />')
         for i in range(14): mem_attach("ROM", cid, f"in{i}",  f"in{i}",  f"A{i}", 900, -360 + i*8)
         for i in range(8):  mem_attach("ROM", cid, f"out{i}", f"out{i}", f"D{i}", 990, -360 + i*8)
         mem_attach("ROM", cid, "cs", "Pin_Cs",        "~ROMCS", 900, -392)
         mem_attach("ROM", cid, "oe", "Pin_outEnable", "~ROMOE", 900, -384)
-        warns.append("D36 -> one Memory(16Kx8); load a ROM image in the GUI to boot")
+        warns.append("D36 -> one Memory(16Kx8)")
     if "K565RU5" in present:
         uid += 1; cid = f"DynamicMemory-{uid}"
         items.append(f'<item itemtype="DynamicMemory" CircId="{cid}" {A} Pos="900,-120" label="DRAM 64Kx8(D28-35)" Row_Bits="8 _Bits" Column_Bits="8 _Bits" Data_Bits="8 _Bits" {ELEC} />')
