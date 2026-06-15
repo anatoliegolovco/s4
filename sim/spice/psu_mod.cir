@@ -1,0 +1,29 @@
+* Sintez-2 PSU mod validation (ngspice -b)
+* The unit had a 39-ohm resistor between the LM7805 GND pin and ground; the video
+* measured ~5.35 V no-load. Mechanism: a 78xx regulates 5 V between OUT and its GND
+* pin, and its ground-pin (quiescent) current Ignd flows through that resistor:
+*     Vout = 5 V + Ignd * Rgnd.
+* Repair: add 15 ohm in parallel with 39 -> 39||15 = 10.6 ohm, lowering the rise.
+* Datasheet LM7805 Ignd: ~4.2 mA typ, up to ~8 mA (rises with load).
+
+* factory: 39 ohm
+Iq1 0 adj1 8m
+R1  adj1 0 39
+Bo1 out1 0 V=5+v(adj1)
+* repair: 39 || 15 = 10.6 ohm
+Iq2 0 adj2 8m
+R2  adj2 0 10.6
+Bo2 out2 0 V=5+v(adj2)
+
+.control
+echo "Ignd      Vout_39ohm   Vout_10.6ohm(repair)"
+foreach ig 4.3m 6m 8m 9m
+  alter Iq1 $ig
+  alter Iq2 $ig
+  op
+  let v39 = v(out1)
+  let vr  = v(out2)
+  echo "$ig   {$&v39} V   {$&vr} V"
+end
+.endc
+.end

@@ -1,0 +1,38 @@
+* Sintez-2 RGB output stage - representative one-channel level check (ngspice -b)
+* TTL colour bit + BRIGHT bit drive a resistor DAC into a КТ315 emitter follower
+* feeding a 75 ohm TV/SCART RGB input. Validates distinct normal/bright levels and
+* that КТ315 (Vbe, hFE) sets the analog level (spec class-4).
+* Representative ladder weights (R48 620, R49 1.8k, R43 33k pulldown); exact
+* per-board topology still to trace (see validation-trace-verify-2026-06-14.md).
+.model KT315 NPN (IS=1e-14 BF=80 VAF=80 Rb=10 Rc=2 Cje=8p Cjc=4p TF=0.6n)
+
+Vcc   vcc 0 5
+Vcol  col 0 0
+Vbri  bri 0 0
+Rcol  col base 620
+Rbri  bri base 1800
+Rpd   base 0 33k
+Q1    vcc base emit KT315
+Re    emit out 150
+Rload out 0 75
+
+.control
+echo "state        Vbase     Vout(75ohm)"
+alter Vcol 0
+alter Vbri 0
+op
+echo "OFF          {$&base} V   {$&out} V"
+alter Vcol 5
+alter Vbri 0
+op
+echo "NORMAL       {$&base} V   {$&out} V"
+alter Vcol 0
+alter Vbri 5
+op
+echo "BRIGHT-only  {$&base} V   {$&out} V"
+alter Vcol 5
+alter Vbri 5
+op
+echo "NORMAL+BRT   {$&base} V   {$&out} V"
+.endc
+.end
