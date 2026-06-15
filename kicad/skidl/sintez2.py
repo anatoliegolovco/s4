@@ -270,6 +270,46 @@ vid_oe = Net("VID_OE"); vid_sel = Net("VID_SEL")
 d46[1] += vid_oe; d47[1] += vid_oe; d46[14] += vid_sel; d47[14] += vid_sel
 d45c["C"] += clk14; d45c["OE"] += gnd; d45c["SI"] += gnd   # colour register clock/enable
 
+# ---- block 7a: disk / joystick I/O (D44/D51 ИР22, D50 АП3) -----------------
+# Pin-exact from the trace. D44/D51 latch the disk data bus; D50 buffers the disk
+# address A8-A15 through КД522 diodes to AA8-AA15. Connectors X1/X2 (joysticks),
+# X3 (keyboard J0-J4), X4 (disk data DO0-4), X6 (disk address). NOTE: the board
+# silk-labels the address diodes "D9..D16" — that collides with the logic ICs of
+# the same name, so they are VD9..VD16 here. Net 'a' = GND (global, see wiring.json).
+d44 = P.K1533IR22(ref="D44"); d51 = P.K1533IR22(ref="D51"); d50 = P.K1533AP3(ref="D50")
+x1 = P.CONN(9, "JoyL")(ref="X1"); x2 = P.CONN(9, "JoyR")(ref="X2")
+x3 = P.CONN(9, "Kbd")(ref="X3"); x4 = P.CONN(9, "DiskDO")(ref="X4"); x6 = P.CONN(8, "DiskAA")(ref="X6")
+for pp in (d44, d51, d50): pp["VCC"] += vcc; pp["GND"] += gnd
+vd = {n: P.DIODE("КД522")(ref=f"VD{n}") for n in range(9, 17)}
+_dp = {"D44": d44, "D51": d51, "D50": d50, "X1": x1, "X2": x2, "X3": x3, "X4": x4, "X6": x6}
+_dp.update({f"D{n}": vd[n] for n in range(9, 17)})   # the address diodes (board "D9..16")
+_de = {f"D{i}": D[i] for i in range(8)}; _de.update({f"A{i}": A[i] for i in range(16)}); _de["GND"] = gnd
+_disknets = {
+    "J0": ["X3.2", "D44.3"], "J1": ["X3.3", "D44.4"], "J2": ["X3.4", "D44.7"],
+    "J3": ["X3.5", "D44.8"], "J4": ["X3.9", "D44.13"],
+    "GND": ["D44.14", "D44.17", "D44.18", "D44.1"],
+    "a": ["D44.11", "D51.11", "D51.14", "D51.18"],
+    "D0": ["D44.2", "D51.2"], "D1": ["D44.5", "D51.5"], "D2": ["D44.6", "D51.6"],
+    "D3": ["D44.9", "D51.9"], "D4": ["D44.12", "D51.12"], "D5": ["D44.15", "D51.15"],
+    "D6": ["D44.16", "D51.16"], "D7": ["D44.19", "D51.19"],
+    "DI0": ["D51.3"], "DI1": ["D51.4"], "DI2": ["D51.7"], "DI3": ["D51.8"], "DI4": ["D51.13"],
+    "A8": ["D50.2"], "A9": ["D50.4"], "A10": ["D50.6"], "A11": ["D50.8"],
+    "A14": ["D50.17"], "A15": ["D50.15"], "A12": ["D50.13"], "A13": ["D50.11"],
+    "D50_OE": ["D50.1", "D50.19"],
+    "dA8": ["D50.18", "D9.1"], "dA9": ["D50.16", "D10.1"], "dA10": ["D50.14", "D11.1"],
+    "dA11": ["D50.12", "D12.1"], "dA14": ["D50.3", "D13.1"], "dA15": ["D50.5", "D14.1"],
+    "dA12": ["D50.7", "D15.1"], "dA13": ["D50.9", "D16.1"],
+    "AA8": ["D9.2", "X6.6"], "AA9": ["D10.2", "X6.3"], "AA10": ["D11.2", "X6.2"],
+    "AA11": ["D12.2", "X6.1", "X1.7"], "AA12": ["D15.2", "X6.4", "X2.7"],
+    "AA13": ["D16.2", "X6.5"], "AA14": ["D13.2", "X6.7"], "AA15": ["D14.2", "X6.8"],
+    "DO0": ["X4.4", "X1.3", "X2.9"], "DO1": ["X4.5", "X1.2", "X2.5"], "DO2": ["X4.6", "X1.4", "X2.4"],
+    "DO3": ["X4.7", "X1.5", "X2.2"], "DO4": ["X4.8", "X1.9", "X2.3"],
+}
+for _nm, _eps in _disknets.items():
+    _n = gnd if _nm in ("GND", "a") else (_de.get(_nm) or Net(_nm))
+    for _ep in _eps:
+        _r, _pn = _ep.split("."); _n += _dp[_r][int(_pn)]
+
 # ---- generate outputs ------------------------------------------------------
 ERC()   # prints its own '<n> errors / <n> warnings found' summary
 generate_netlist(file_=NETLIST)

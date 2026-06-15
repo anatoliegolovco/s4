@@ -201,3 +201,24 @@ def XTAL(value):
     return Part(name="Crystal", tool="skidl", dest=TEMPLATE, ref_prefix="Z",
                 value=value, footprint="Crystal:Crystal_HC49-U_Vertical",
                 pins=[Pin(num="1", name="1", func=PAS), Pin(num="2", name="2", func=PAS)])
+
+def BJT(value="КТ315"):   # NPN small-signal (pin1=E, pin2=B, pin3=C)
+    return Part(name="Q_NPN", tool="skidl", dest=TEMPLATE, ref_prefix="VT", value=value,
+                footprint="Package_TO_SOT_THT:TO-92_Inline",
+                pins=[Pin(num="1", name="E", func=PAS), Pin(num="2", name="B", func=I),
+                      Pin(num="3", name="C", func=PAS)])
+
+def DIODE(value="КД522"):  # pin1=anode, pin2=cathode
+    return Part(name="D", tool="skidl", dest=TEMPLATE, ref_prefix="VD", value=value,
+                footprint="Diode_THT:D_DO-35_SOD27_P7.62mm_Horizontal",
+                pins=[Pin(num="1", name="A", func=PAS), Pin(num="2", name="K", func=PAS)])
+
+def SPK(value="ЗП-3"):
+    return Part(name="Speaker", tool="skidl", dest=TEMPLATE, ref_prefix="BA", value=value,
+                footprint="Buzzer_Beeper:Buzzer_12x9.5RM7.6",
+                pins=[Pin(num="1", name="1", func=PAS), Pin(num="2", name="2", func=PAS)])
+
+def CONN(n, value="conn"):  # generic n-pin connector
+    return Part(name=f"Conn_{n}", tool="skidl", dest=TEMPLATE, ref_prefix="X", value=value,
+                footprint="Connector_PinHeader_2.54mm:PinHeader_1x%02d_P2.54mm_Vertical" % n,
+                pins=[Pin(num=str(i), name=str(i), func=PAS) for i in range(1, n + 1)])
