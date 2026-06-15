@@ -139,6 +139,53 @@ K1533IE7 = _dip("K1533IE7", "Package_DIP:DIP-16_W7.62mm", [
     (16, "VCC", PWR),
 ], value="К1533ИЕ7 (74193)")
 
+# К555ИР16 = 4-bit parallel-load shift register, DIP-14 (NOT 74LS165; see bom v0.3).
+# Pin map from the redraw symbol: SI=1, D0-D3=2/3/4/5, PE=6, GND=7, OE=8, C=9,
+# Q3-Q0=10/11/12/13, VCC=14.
+K555IR16 = _dip("K555IR16", "Package_DIP:DIP-14_W7.62mm", [
+    (1, "SI", I), (2, "D0", I), (3, "D1", I), (4, "D2", I), (5, "D3", I),
+    (6, "PE", I), (7, "GND", PWR), (8, "OE", I), (9, "C", I), (10, "Q3", TRI),
+    (11, "Q2", TRI), (12, "Q1", TRI), (13, "Q0", TRI), (14, "VCC", PWR),
+], value="К555ИР16 (4-bit shift, keep LS)")
+
+# К1533ИР22 = 74LS373 octal transparent latch, DIP-20.
+K1533IR22 = _dip("K1533IR22", "Package_DIP:DIP-20_W7.62mm", [
+    (1, "~OE", I), (2, "Q0", TRI), (3, "D0", I), (4, "D1", I), (5, "Q1", TRI),
+    (6, "Q2", TRI), (7, "D2", I), (8, "D3", I), (9, "Q3", TRI), (10, "GND", PWR),
+    (11, "LE", I), (12, "Q4", TRI), (13, "D4", I), (14, "D5", I), (15, "Q5", TRI),
+    (16, "Q6", TRI), (17, "D6", I), (18, "D7", I), (19, "Q7", TRI), (20, "VCC", PWR),
+], value="К1533ИР22 (74LS373)")
+
+# К1533ИР23 = 74LS374 octal D flip-flop, DIP-20.
+K1533IR23 = _dip("K1533IR23", "Package_DIP:DIP-20_W7.62mm", [
+    (1, "~OE", I), (2, "Q0", TRI), (3, "D0", I), (4, "D1", I), (5, "Q1", TRI),
+    (6, "Q2", TRI), (7, "D2", I), (8, "D3", I), (9, "Q3", TRI), (10, "GND", PWR),
+    (11, "CP", I), (12, "Q4", TRI), (13, "D4", I), (14, "D5", I), (15, "Q5", TRI),
+    (16, "Q6", TRI), (17, "D6", I), (18, "D7", I), (19, "Q7", TRI), (20, "VCC", PWR),
+], value="К1533ИР23 (74LS374)")
+
+# К1533АП3 = 74LS244 octal 3-state buffer (two 4-bit halves), DIP-20.
+K1533AP3 = _dip("K1533AP3", "Package_DIP:DIP-20_W7.62mm", [
+    (1, "~1OE", I), (2, "1A0", I), (3, "2Y0", O), (4, "1A1", I), (5, "2Y1", O),
+    (6, "1A2", I), (7, "2Y2", O), (8, "1A3", I), (9, "2Y3", O), (10, "GND", PWR),
+    (11, "2A3", I), (12, "1Y3", O), (13, "2A2", I), (14, "1Y2", O), (15, "2A1", I),
+    (16, "1Y1", O), (17, "2A0", I), (18, "1Y0", O), (19, "~2OE", I), (20, "VCC", PWR),
+], value="К1533АП3 (74LS244)")
+
+# К1533КП11 = 74LS257 quad 2:1 mux, 3-state, DIP-16 (D5 video-fetch mux).
+K1533KP11 = _dip("K1533KP11", "Package_DIP:DIP-16_W7.62mm", [
+    (1, "S", I), (2, "1a", I), (3, "1b", I), (4, "1Y", TRI), (5, "2a", I),
+    (6, "2b", I), (7, "2Y", TRI), (8, "GND", PWR), (9, "3Y", TRI), (10, "3b", I),
+    (11, "3a", I), (12, "4Y", TRI), (13, "4b", I), (14, "4a", I), (15, "~OE", I),
+    (16, "VCC", PWR),
+], value="К1533КП11 (74LS257)")
+
+# К544СА3 = analog precision comparator (tape-IN, D49), DIP-14.
+K544SA3 = _dip("K544SA3", "Package_DIP:DIP-14_W7.62mm", [
+    (1, "W1", I), (2, "QE", O), (3, "C", I), (5, "NC1", NC), (6, "NC2", NC),
+    (7, "U2", PWR), (8, "QK", O), (9, "NC3", NC), (11, "U1", PWR), (14, "W2", I),
+], value="К544СА3 (comparator)")
+
 # ---------------------------------------------------------------- passives
 def R(value):
     return Part(name="R", tool="skidl", dest=TEMPLATE, ref_prefix="R",

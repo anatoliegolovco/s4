@@ -214,6 +214,21 @@ for ref, net in zip(("R4", "R5", "R6", "R7"), (int_n, nmi_n, busrq_n, wait_n)):
     r = P.R("5.1k")(ref=ref)
     r[1] += vcc; r[2] += net
 
+# ---- block 6a: pixel chain (D39/D40/D41 К555ИР16, 4-bit, KEEP LS timing) ----
+# From the verified trace: D41 loads VD0-3, D40 loads VD4-7; serial chain
+# D41 → D40 → D39 → FLASH XOR (D18). OE/PE of all three + D41's serial-in tie to
+# net 'a' = GND. Clocked at 14 MHz. D40.Q3 also taps the FLASH AND (D13 sec 4).
+VD = [Net(f"VD{i}") for i in range(8)]          # video-data bus (from D42/D43 latches)
+d39v = P.K555IR16(ref="D39"); d40v = P.K555IR16(ref="D40"); d41v = P.K555IR16(ref="D41")
+for r in (d39v, d40v, d41v):
+    r["VCC"] += vcc; r["GND"] += gnd; r["OE"] += gnd; r["PE"] += gnd; r["C"] += clk14
+for i in range(4):
+    d41v[f"D{i}"] += VD[i]; d40v[f"D{i}"] += VD[4 + i]
+d41v["SI"] += gnd                                # first stage serial-in low ('a'=GND)
+d41v["Q3"] += d40v["SI"]                          # D41 → D40
+d40v["Q3"] += d39v["SI"]; d40v["Q3"] += d13["4A"] # D40 → D39, and FLASH-AND tap
+pix_ser = Net("PIX_SER"); d39v["Q3"] += pix_ser   # final serial pixel → FLASH XOR (D18)
+
 # ---- generate outputs ------------------------------------------------------
 ERC()   # prints its own '<n> errors / <n> warnings found' summary
 generate_netlist(file_=NETLIST)
