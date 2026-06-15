@@ -28,3 +28,18 @@ kicad/skidl/*.json
 
 # compiled boot test
 tests/boot/boot
+
+# PCB fab outputs (regenerate with kicad-cli)
+kicad/gerbers/
+*.drl
+*.gbr
+*.gbl
+*.gbs
+*.gba
+*.gbp
+*.gbo
+*.gtl
+*.gts
+*.gto
+*.gtp
+*.gm1
