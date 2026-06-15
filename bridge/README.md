@@ -59,19 +59,28 @@ overall "boots to the © prompt" bar (spec T7). Contention tests must NOT pass.
 
 ## Status
 
-- **net2sim.py — v0 WORKING.** Parses `kicad/sintez2.net`, maps parts (Z80 by a
-  fixed pin table; 74xx via SimulIDE `.package` number→id; R/C/crystal), and emits
-  a well-formed `sim/circuits/sintez2.sim1` with one Node + Connectors per net.
-  Current run: 36 components → 27 items, 25 nets, 100 connectors.
+- **net2sim.py — v1, LOADS CLEANLY in SimulIDE (0 errors).** Parses
+  `kicad/sintez2.net` and emits `sim/circuits/sintez2.sim1`:
+  - **Z80** → `itemtype="MCU"` (pins PORTA*/PORTD*/CPORT0*); 74xx → `Subcircuit`
+    (pin number→id from SimulIDE `.package`, `_LS` variant for К555 timing);
+    R/C → Resistor/Capacitor; crystal → 14 MHz Clock.
+  - **Nets → Tunnels** (named-net labels, SimulIDE's idiom — scales to any fan-out,
+    like KiCad net labels). Run: 36 comps → 27 items, 98 tunnels, 98 connectors.
   ```bash
   .venv/bin/python bridge/net2sim.py
+  DISPLAY=:0 simulide sim/circuits/sintez2.sim1 &   # opens cleanly
   ```
-  Coverage caveats it prints: DRAM (D28–D35) + ROM (D36) skipped (SimulIDE Memory
-  built-ins, pin-map = T5/next); D5 follows the netlist (still КП12 in SKiDL —
-  set to КП11 when the arbitration block is finished); КП12→74HC153 (non-tristate),
-  ИР16→74XX166 (8- vs 4-bit), ЛА4→74HC00 (no 3-in NAND in lib) are approximations.
-- **Next:** (a) add ROM/DRAM as SimulIDE Memory items with real pin maps;
-  (b) give Connectors real routing geometry + load-test in the SimulIDE GUI;
-  (c) set per-part family timing (Tpd/Out_V from parts_map) on each Subcircuit.
+  Verified headless: `simulide <file>` reports **0 load errors**.
+  Coverage caveats it prints: DRAM (D28–D35) + ROM (D36) skipped (need SimulIDE
+  Memory/DynamicMemory items — next); D5 follows the netlist (still КП12 in SKiDL —
+  set to КП11 when arbitration is finished); КП12→74HC153, ИР16→74XX166 (8 vs 4-bit),
+  ЛА4→74HC00 (no 3-in NAND in lib) are approximations.
+- **Next:** (a) add ROM (`itemtype="Memory"`, load the ROM bin) + DRAM
+  (`itemtype="DynamicMemory"` — ideal for РУ5 RAS/CAS) with their pin maps;
+  (b) set per-part family timing (Tpd/Out_V) from parts_map on each Subcircuit;
+  (c) run + validate boot-to-© and RAS-before-CAS.
+- **Template:** `examples/Micro/Z80/ZX_Spectrum/ULA_Z80-MCU.sim1` (a ZX48 in
+  SimulIDE) — reference for Z80-MCU + Memory + Tunnel wiring (but it uses a ULA,
+  which the Sintez does NOT — we keep discrete TTL).
 
 (`sim/circuits/*.sim1` is a generated build artifact — gitignored; regenerate.)
