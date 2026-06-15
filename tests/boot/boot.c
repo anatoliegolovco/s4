@@ -35,6 +35,7 @@ int main(int argc, char** argv){
     printf("  ERR_NR  (5C3A) = %02X    (expect FF = no error)\n", ERRNR);
     printf("  screen pixels set = %ld ; attrs set = %ld\n", px, attr);
     // robust boot indicators: RAM probe found 64K top, font set, display + attrs initialised with the sign-on message
+    FILE* sf=fopen("/tmp/s4work/screen.scr","wb"); if(sf){ fwrite(mem+0x4000,1,6912,sf); fclose(sf); }
     int ok = (PRAMT==0xFFFF) && (CHARS==0x3C00) && (attr>=700) && (px>0);
     printf("VERDICT: %s (ERR_NR=%02X)\n", ok? "BOOTED to the (c) sign-on — ROM init completed on the ROM(0-3FFF)/RAM(4000+) map":"did NOT reach a clean boot state", ERRNR);
     return ok?0:1;
