@@ -43,7 +43,7 @@ PART_MAP = {
     "K1533IR23": {"kind": "ic", "sim": "74HC374"},
     "KR1533IR27":{"kind": "ic", "sim": "74HC273"},
     "K1533AP3":  {"kind": "ic", "sim": "74XX244"},
-    "K555IR16":  {"kind": "ic", "sim": "74XX166", "ls": True, "note": "74166 is 8-bit; ИР16 is 4-bit"},
+    "K555IR16":  {"kind": "ic", "sim": "74XX166", "ls": True, "fam": "LS_IR16", "note": "74166 is 8-bit; ИР16 is 4-bit"},
     "K1533LN1":  {"kind": "ic", "sim": "74HC04"},
     "K1533LA3":  {"kind": "ic", "sim": "74HC00"},
     "K1533LA4":  {"kind": "ic", "sim": "74HC00", "note": "no 3-in NAND (74HC10) in lib; 74HC00 is 2-in — APPROX"},
@@ -65,6 +65,15 @@ Z80_PINS = {
     24:"CPORT0WAIT",25:"CPORT0BUSRQ",26:"CPORT0RESET",27:"CPORT0M1",28:"CPORT0RFSH",
     30:"PORTA0",31:"PORTA1",32:"PORTA2",33:"PORTA3",34:"PORTA4",35:"PORTA5",
     36:"PORTA6",37:"PORTA7",38:"PORTA8",39:"PORTA9",40:"PORTA10",
+}
+
+# Per-logic-family SimulIDE timing (from the verified family-timing table). К1533=ALS
+# (fast), К555=LS (slower), К555ИР16=LS with the deliberate ~27ns setup-margin choice
+# (spec §3 — must NOT be ALS). Applied to each Subcircuit so LS vs ALS is preserved.
+FAMILY = {
+    "ALS":      'Tpd_ps="4000 ps" Tr_ps="2000 ps" Tf_ps="2000 ps" Out_High_V="3.4 V" Out_Low_V="0.35 V" Out_Imped="50 Ω"',
+    "LS":       'Tpd_ps="15000 ps" Tr_ps="6000 ps" Tf_ps="6000 ps" Out_High_V="3.4 V" Out_Low_V="0.35 V" Out_Imped="160 Ω"',
+    "LS_IR16":  'Tpd_ps="27000 ps" Tr_ps="8000 ps" Tf_ps="8000 ps" Out_High_V="3.4 V" Out_Low_V="0.35 V" Out_Imped="160 Ω"',
 }
 
 def parse_netlist(path):
@@ -145,7 +154,8 @@ def main():
             if not pm:
                 warns.append(f"{ref}: package for '{m['sim']}' not found — skipped"); continue
             cid = newcid(m["sim"])
-            items.append(f'<item itemtype="Subcircuit" CircId="{cid}" {A} Pos="{px},{py}" label="{ref}" />')
+            tim = FAMILY.get(m.get("fam", "ALS"), FAMILY["ALS"])   # logic family timing (LS vs ALS)
+            items.append(f'<item itemtype="Subcircuit" CircId="{cid}" {A} Pos="{px},{py}" label="{ref}" {tim} />')
             for num, (pid, pxo, pyo, ang) in pm.items():
                 pin_id[(ref, num)] = f"{cid}-{pid}"
                 pin_xy[(ref, num)] = (px + pxo, py + pyo, ang)
