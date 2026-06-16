@@ -43,3 +43,9 @@ kicad/gerbers/
 *.gto
 *.gtp
 *.gm1
+
+# KiCad local/backup files (project .kicad_pro IS committed)
+*.kicad_prl
+*.bak
+*-bak
+_autosave-*
