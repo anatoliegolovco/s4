@@ -33,6 +33,12 @@ gnd = Net("GND");  gnd.drive = 7
 # ---- canonical buses (grow as blocks are added) ----------------------------
 A = [Net(f"A{i}") for i in range(16)]      # CPU address bus A0..A15
 D = [Net(f"D{i}") for i in range(8)]       # data bus D0..D7
+# shared video/address buses (hoisted so the arbitration block 4 can reference the
+# H/V counter outputs + K video-fetch address that block 5 also drives)
+VA = [Net(f"VA{i}") for i in range(8)]     # multiplexed DRAM row/col address
+H  = [Net(f"H{i}") for i in range(8)]      # horizontal counter outputs (D2/D19)
+V  = [Net(f"V{i}") for i in range(8)]      # vertical counter outputs (D3/D4)
+K  = {i: Net(f"K{i}") for i in range(8, 13)}  # video-fetch address K8..K12 (D5/D7B)
 
 # ---- CPU (D6) --------------------------------------------------------------
 cpu = P.Z80(ref="D6")
@@ -97,8 +103,7 @@ RD += rom_oe_n                     # ROM /OE follows CPU /RD
 # bus VA0-VA7, /RAS, /CAS, /WE; they differ only in DIN/DOUT (one data bit each).
 # Address-pin -> VA-net map is the one extracted into schematics/wiring.json
 # (dram_addr_map, from the colour tile gap_bot_center).
-VA = [Net(f"VA{i}") for i in range(8)]     # multiplexed row/col addr (driven by D24/D25 КП12, block 4)
-DD = [Net(f"DD{i}") for i in range(8)]     # DRAM data-out -> D43 latch (block 6)
+DD = [Net(f"DD{i}") for i in range(8)]     # DRAM data-out -> D43 latch (block 6)  (VA hoisted to top)
 ras_n = Net("~RAS"); cas_n = Net("~CAS"); we_n = Net("~WE")
 
 # Per-chip address pin (by its schematic A-label) -> VA net:
@@ -124,36 +129,38 @@ ras_stb = Net("RAS_STB"); cas_stb = Net("CAS_STB"); mem_stb = Net("MEM_STB")
 d13["2A"] += mem_stb; d13["2B"] += ras_stb; d13["2Y"] += ras_n   # -> /RAS
 d13["3A"] += mem_stb; d13["3B"] += cas_stb; d13["3Y"] += cas_n   # -> /CAS
 
-# ---- block 4: bus arbitration — the "crown jewel" (PARTIAL) ----------------
-# D23/D24/D25 КП12 mux CPU address vs video-fetch address onto VA0-VA5 (each dual
-# 4:1 mux drives 2 VA bits; selects pick {row|col} x {CPU|video}). D5 КП12 makes
-# the video-fetch address K8-K12 from the V-counters; D26 КП12 is the A14/A15
-# paging mux; D38 ИР27 latches the row/RAM address.
-#
-# HONEST SCOPE: only the parts I can map with confidence are wired here — the mux
-# OUTPUTS -> VA (per schematics/wiring.json) and power. The detailed DATA-INPUT
-# mapping (which CPU/screen-address bit feeds which 4:1 input, and the exact
-# select/enable timing) is the screen-address generator — the most intricate logic
-# on the board. It must be traced pin-by-pin from the scan before it is trustworthy,
-# so it is deliberately left as a dedicated task rather than guessed here.
-d5  = P.K1533KP11(ref="D5");  d5["VCC"]  += vcc; d5["GND"]  += gnd   # КП11 (74257), corrected per validation
-d23 = P.K1533KP12(ref="D23"); d23["VCC"] += vcc; d23["GND"] += gnd
-d24 = P.K1533KP12(ref="D24"); d24["VCC"] += vcc; d24["GND"] += gnd
-d25 = P.K1533KP12(ref="D25"); d25["VCC"] += vcc; d25["GND"] += gnd
-d26 = P.K1533KP12(ref="D26"); d26["VCC"] += vcc; d26["GND"] += gnd
-d38 = P.KR1533IR27(ref="D38"); d38["VCC"] += vcc; d38["GND"] += gnd
+# ---- block 4: bus arbitration — the screen-address generator (RESOLVED) -----
+# From the adversarially-verified trace (wiring.json addr-arbitration.resolved_2026_06_16):
+# D5 КП11 builds the video-fetch address K8-K12 from the V-counters; D23-D26 КП12
+# 4:1 muxes select CPU address (A*) vs video-fetch (K*/H*/V*) onto VA0-VA7. Only the
+# shared 2-bit select + OE0 (the {row|col} x {CPU|video} timing) stay ambiguous.
+a2 = Net("a2"); s2n = Net("nS2")    # a2 = local label (NOT 'a'=GND); nS2 = /S2 select
+d5  = P.K1533KP11(ref="D5");  d5["VCC"]  += vcc; d5["GND"]  += gnd; d5["~OE"] += gnd; d5["S"] += s2n
+d23 = P.K1533KP12(ref="D23"); d24 = P.K1533KP12(ref="D24")
+d25 = P.K1533KP12(ref="D25"); d26 = P.K1533KP12(ref="D26"); d38 = P.KR1533IR27(ref="D38")
+for m in (d23, d24, d25, d26): m["VCC"] += vcc; m["GND"] += gnd; m["~2G"] += gnd
+d38["VCC"] += vcc; d38["GND"] += gnd; d38["~MR"] += gnd
 
-# Confident: mux outputs -> multiplexed DRAM address bus (wiring.json).
-d23["1Y"] += VA[0]; d23["2Y"] += VA[1]
-d24["1Y"] += VA[2]; d24["2Y"] += VA[3]
-d25["1Y"] += VA[4]; d25["2Y"] += VA[5]
-# (VA6/VA7 source still to be traced.)
+# D5 КП11 (quad 2:1, select /S2): video-fetch address K8-K12 from the V-counters
+d5["1a"] += a2;   d5["1b"] += V[7]; d5["1Y"] += K[12]
+d5["2a"] += a2;   d5["2b"] += V[6]; d5["2Y"] += K[11]
+d5["3a"] += V[7]; d5["3b"] += V[1]; d5["3Y"] += K[9]
+d5["4a"] += V[6]; d5["4b"] += V[0]; d5["4Y"] += K[8]
+# (K10 = AND(/S2,V2) via D7B — wired in block 8 where D7 is instantiated)
 
-# Shared arbitration controls as named nets (driven by the sync/timing block 5).
-arb_rowcol = Net("ARB_ROWCOL")   # select B: row vs column phase
-arb_cpuvid = Net("ARB_CPUVID")   # select A: CPU vs video access phase
-for m in (d23, d24, d25):
-    m["A"] += arb_cpuvid; m["B"] += arb_rowcol
+# D23-D26 КП12: 1C0-3 / 2C0-3 data inputs -> 1Y/2Y = VA bits (resolved map)
+d23["1C0"]+=A[0];  d23["1C1"]+=A[10]; d23["1C2"]+=H[0]; d23["1C3"]+=K[10]; d23["1Y"]+=VA[0]
+d23["2C0"]+=A[1];  d23["2C1"]+=A[5];  d23["2C2"]+=H[1]; d23["2C3"]+=V[3];  d23["2Y"]+=VA[1]
+d24["1C0"]+=A[2];  d24["1C1"]+=A[6];  d24["1C2"]+=H[2]; d24["1C3"]+=V[4];  d24["1Y"]+=VA[2]
+d24["2C0"]+=A[3];  d24["2C1"]+=A[7];  d24["2C2"]+=H[3]; d24["2C3"]+=V[5];  d24["2Y"]+=VA[3]
+d25["1C0"]+=A[4];  d25["1C1"]+=A[11]; d25["1C2"]+=H[4]; d25["1C3"]+=K[11]; d25["1Y"]+=VA[4]
+d25["2C0"]+=A[8];  d25["2C1"]+=A[12]; d25["2C2"]+=K[8]; d25["2C3"]+=K[12]; d25["2Y"]+=VA[5]
+d26["1C0"]+=A[9];  d26["1C1"]+=A[13]; d26["1C2"]+=K[9]; d26["1C3"]+=gnd;   d26["1Y"]+=VA[6]
+d26["2C0"]+=A[14]; d26["2C1"]+=A[15]; d26["2C2"]+=a2;   d26["2C3"]+=gnd;   d26["2Y"]+=VA[7]
+# shared select/enable = the arbitration {row|col}x{cpu|video} timing — still ambiguous
+arb_a = Net("ARB_SELA"); arb_b = Net("ARB_SELB"); arb_oe = Net("ARB_OE0")
+for m in (d23, d24, d25, d26):
+    m["A"] += arb_a; m["B"] += arb_b; m["~1G"] += arb_oe
 
 # ---- 14 MHz clock oscillator (Z1 + D1 К1533ЛН1 inverters, R1/R2 470, C1 330p)
 # Classic 2-inverter crystal oscillator; output CLK14 feeds the /4 divider.
@@ -185,21 +192,22 @@ d8["~1S"] += vcc; d8["~1R"] += vcc; d8["~2S"] += vcc; d8["~2R"] += vcc
 d8["1C"] += clk14; d8["1D"] += d8["~1Q"]; d8["1Q"] += clk7        # /2 -> 7 MHz
 d8["2C"] += clk7;  d8["2D"] += d8["~2Q"]; d8["2Q"] += clk_cpu     # /2 -> 3.5 MHz = CLK
 
-# Video-sync counters (D2/D19 horizontal, D3/D4 vertical = К1533ИЕ7). Placed +
-# powered + clocked from the dot clock; the H/V sync DECODE (which counter bits
-# gate HSYNC/VSYNC/blank via D10/D14/D21) is FUNCTIONAL/TODO — to trace from scan.
-hcount = [Net(f"H{i}") for i in range(8)]
-vcount = [Net(f"V{i}") for i in range(8)]
+# Video counters (К1533ИЕ7), outputs per the verified trace: D2 = horizontal
+# (QA-QD -> H1,H2,H3,H4); D3 = vertical low (V0-V3); D4 = vertical high (V4-V7);
+# D19 = state counter (F, S0, S1, S2). Clocked from the 7 MHz dot clock; cascade carries.
+F_net = Net("F"); S0 = Net("S0"); S1 = Net("S1"); S2 = Net("S2")
 d2  = P.K1533IE7(ref="D2");  d2["VCC"]  += vcc; d2["GND"]  += gnd
 d19 = P.K1533IE7(ref="D19"); d19["VCC"] += vcc; d19["GND"] += gnd
 d3  = P.K1533IE7(ref="D3");  d3["VCC"]  += vcc; d3["GND"]  += gnd
 d4  = P.K1533IE7(ref="D4");  d4["VCC"]  += vcc; d4["GND"]  += gnd
-# horizontal counter chain clocked by the dot clock; cascade via carry.
 d2["~CU"] += clk7
-for c, qs in ((d2, hcount[0:4]), (d19, hcount[4:8]), (d3, vcount[0:4]), (d4, vcount[4:8])):
-    c["QA"] += qs[0]; c["QB"] += qs[1]; c["QC"] += qs[2]; c["QD"] += qs[3]
-d19["~CU"] += d2["~CO"]      # H high nibble cascades off D2 carry
-d3["~CU"]  += d19["~CO"]     # V counter advances on H rollover (functional cascade)
+d2["QA"]  += H[1]; d2["QB"]  += H[2]; d2["QC"]  += H[3]; d2["QD"]  += H[4]   # H counter
+d3["QA"]  += V[0]; d3["QB"]  += V[1]; d3["QC"]  += V[2]; d3["QD"]  += V[3]   # V low
+d4["QA"]  += V[4]; d4["QB"]  += V[5]; d4["QC"]  += V[6]; d4["QD"]  += V[7]   # V high
+d19["QA"] += F_net; d19["QB"] += S0; d19["QC"] += S1; d19["QD"] += S2        # state counter
+# nS2 (= /S2, used as the D5 arbitration select) — inverter section to trace; named net
+d19["~CU"] += d2["~CO"]      # state counter advances off the H carry
+d3["~CU"]  += d19["~CO"]     # V counter advances on H/state rollover
 d4["~CU"]  += d3["~CO"]
 
 # ---- power-on reset (C2 10u + R10 5.1k) ------------------------------------
@@ -323,6 +331,8 @@ for _ref, _fac in [("D7", P.K1533LI1), ("D10", P.K1533LA4), ("D11", P.K561IE10),
     if _ref == "D18":
         # FLASH/attribute XOR: serial pixel ^ FLASH -> SCREEN pixel stream
         _g["3A"] += pix_ser; _g["3B"] += Net("FLASH"); _g["3Y"] += Net("SCREEN")
+    if _ref == "D7":
+        _g["2A"] += s2n; _g["2B"] += V[2]; _g["2Y"] += K[10]   # D7B: K10 = AND(/S2, V2)
 
 # tape: D49 К544СА3 comparator squares the tape-IN signal; VT2/VT13 push-pull -> beep.
 d49 = P.K544SA3(ref="D49"); d49["Vcc"] += vcc; d49["Vs2"] += vcc; d49["Vee"] += gnd
