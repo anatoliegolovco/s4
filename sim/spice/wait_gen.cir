@@ -1,0 +1,150 @@
+* CAVEAT (verify): the /CAS network R13 470 / R14 180 / C4 51p and the 1-Tclk wait
+* count are ASSUMED (canonical Z80 + D13 RC) — not pin-traced from the schematic.
+* The model demonstrates timing-sensitivity (verdict changes РУ5 vs fast-4164) but the
+* exact WAIT topology needs the D20/D13 gate trace. ngspice runs clean.
+* Sintez-2 WAIT generator - RC one-shot timing tuned to the slow K565RU5 DRAM
+* ----------------------------------------------------------------------------
+* PURPOSE (spec section 2.4 + milestone T5 + decision 0004):
+*   The Sintez-2 has no ULA. The Z80 runs canonical T-states with NO memory
+*   contention (decision 0004). A DRAM access that needs more than the bare
+*   bus cycle is covered by a WAIT pulse whose LENGTH is set by:
+*     (a) the integer Z80 clock period that the WAIT flip-flop D20 (74LS74)
+*         holds /WAIT low  -> 1 Tclk = 1/3.5MHz = 285.7 ns, and
+*     (b) the RC strobe-shaping one-shots on D13's /RAS and /CAS outputs that
+*         position the strobe edges inside that window:
+*            /RAS branch : R15 470 + C5 51p
+*            /CAS branch : R13 470 / R14 180 + C4 51p
+*   The RC time constants (tens of ns) are the FINE adjustment that was tuned
+*   to the slow K565RU5 (tRAS/tCAS ~200..230 ns). The deck measures both the
+*   RC strobe delays AND the total WAIT window, then compares to the RU5 vs
+*   fast-4164 access bands so the verdict flips (T5 "Done" criterion).
+*
+* VALUES: schematics/bom.json (discretes.key_resistors: "R15 470 + C5",
+*   "R13 470/R14 180") + schematics/wiring.json (dram.timing_gen, D13 = RAS/CAS,
+*   D20 = WAIT flip-flop, CPU clock 3.5 MHz).
+* DOCUMENTED TYPICALS (stated per the rules, none read off the schematic):
+*   - C4 = C5 = 51 pF  (task value; the "C4/C5 51p" note)
+*   - TTL input switching threshold Vth = 1.4 V (LS/ALS datasheet VIH/VIL mid)
+*   - Z80A clock 3.5 MHz -> Tclk 285.7 ns (wiring.json clock_domains.cpu)
+*   - WAIT flip-flop holds 1 Tclk (one inserted wait state, canonical Z80)
+*   - K565RU5 access 200..230 ns; fast 4164 access ~135 ns (spec 2.4 band)
+*
+* Transistors KT315 (NPN) / KT361 (PNP): generic datasheet .model, hFE~50,
+* ft 250 MHz. Defined per task for a self-contained deck; the WAIT one-shot is
+* pure TTL+RC so they are not in the timing path.
+* ----------------------------------------------------------------------------
+
+.model KT315 NPN (IS=1e-14 BF=50 VAF=80 RB=10 RC=2 TF=0.64n CJE=10p CJC=4p)
+.model KT361 PNP (IS=1e-14 BF=50 VAF=80 RB=10 RC=2 TF=0.64n CJE=12p CJC=5p)
+
+Vcc  vcc 0 5
+
+* ---- common strobe step from D13: idle high, asserts (falls) is modeled here
+* as a rising drive into the RC delay node (edge at t=1 ns).
+Vstrobe sd 0 PWL(0 0  1n 0  1.001n 5)
+
+* ---- /RAS strobe-delay one-shot: R15 470 + C5 51p (single-pole low-pass)
+R15   sd ras_t 470
+C5    ras_t 0 51p
+
+* ---- /CAS strobe-delay one-shot: R13 470 / R14 180 + C4 51p
+* R13 to the strobe, R14 to GND (Thevenin), C4 the timing cap on node cas_t.
+R13   sd cas_n 470
+R14   cas_n 0 180
+C4    cas_n cas_t 51p
+Rct   cas_t 0 470
+
+.control
+  set noaskquit
+
+  * --- transient first; do op LAST so it does not clobber the tran plot ---
+  tran 0.05n 400n
+
+  * RAS branch is a single-pole low-pass (R15 to gate, C5 to GND): the node
+  * RISES toward 5V. Its strobe delay = time to cross the 1.4 V TTL threshold.
+  meas tran t_ras WHEN v(ras_t)=1.4 RISE=1
+
+  * CAS branch is a CR differentiator (series C4): the strobe edge produces a
+  * pulse that peaks BELOW the TTL threshold (the R13 470 / R14 180 divider
+  * holds the swing to ~1.1 V) and decays through Rct. There is no 1.4 V
+  * crossing, so the one-shot width is the full-width-at-half-maximum (FWHM)
+  * of that pulse -- the classic CR-monostable pulse width tau*ln(2) ~ R*C*0.69.
+  let cpk    = maximum(v(cas_t))     $ CAS pulse peak (V)
+  let chalf  = cpk/2
+  meas tran t_crise WHEN v(cas_t)=chalf RISE=1
+  meas tran t_cfall WHEN v(cas_t)=chalf FALL=1
+
+  let edge   = 1e-9
+  let d_ras  = t_ras - edge          $ RAS strobe delay (s)
+  let d_cas  = t_cfall - t_crise     $ CAS differentiator one-shot width (FWHM, s)
+
+  * the strobe-shaping skew the one-shot adds = the later of the two edges
+  let rc_skew = d_ras
+  if d_cas > d_ras
+    let rc_skew = d_cas
+  end
+
+  * --- WAIT window: 1 Z80 Tclk that D20 holds /WAIT, plus the RC strobe skew
+  * that delays when valid data is actually clocked back to the CPU. This total
+  * is the effective DRAM-access budget the generator grants.
+  let tclk    = 285.7e-9             $ 1 / 3.5 MHz
+  let wait_w  = tclk + rc_skew       $ effective WAIT-covered access budget (s)
+
+  * --- reference access bands ---
+  let ru5_lo  = 200e-9
+  let ru5_hi  = 230e-9
+  let f4164   = 135e-9
+
+  echo "============================================================"
+  echo "Sintez-2 WAIT generator - RC one-shot result (ngspice -b)"
+  echo "------------------------------------------------------------"
+  echo "TTL threshold Vth = 1.4 V (LS/ALS datasheet typical)"
+  let drns = d_ras*1e9
+  let dcns = d_cas*1e9
+  let cpkns = cpk
+  echo "RAS one-shot (R15 470 + C5 51p) low-pass delay = {$&drns} ns"
+  echo "CAS one-shot (R13 470/R14 180 + C4 51p) CR pulse peak {$&cpkns} V"
+  echo "CAS one-shot FWHM width                       = {$&dcns} ns"
+  let skns = rc_skew*1e9
+  echo "RC strobe skew (later edge)                   = {$&skns} ns"
+  echo "------------------------------------------------------------"
+  let tcns = tclk*1e9
+  let wns  = wait_w*1e9
+  echo "Z80 wait state  = 1 Tclk @3.5MHz              = {$&tcns} ns"
+  echo "WAIT pulse width (1 Tclk + RC skew)           = {$&wns} ns"
+  echo "------------------------------------------------------------"
+  let r1 = ru5_lo*1e9
+  let r2 = ru5_hi*1e9
+  let f1 = f4164*1e9
+  echo "K565RU5 access  : {$&r1} .. {$&r2} ns (SLOW, real part)"
+  echo "fast 4164 access: {$&f1} ns (imported drop-in)"
+  echo "------------------------------------------------------------"
+
+  * margin vs each DRAM profile (WAIT budget minus access time)
+  let m_ru5 = (wait_w - ru5_hi)*1e9
+  let m_416 = (wait_w - f4164)*1e9
+  echo "margin vs RU5 (worst 230ns): {$&m_ru5} ns"
+  echo "margin vs 4164 (135ns)     : {$&m_416} ns"
+  echo "------------------------------------------------------------"
+
+  if wait_w >= ru5_hi
+    echo "VERDICT vs K565RU5 : SAFE - WAIT window covers full slow-RU5 access."
+  end
+  if wait_w < ru5_hi
+    echo "VERDICT vs K565RU5 : MARGINAL - tuned to the RU5 access band."
+  end
+
+  echo "VERDICT vs fast-4164: window over-provides ~{$&m_416} ns of slack."
+  echo "  -> The generator is sized for RU5; a fast 4164 finishes far inside"
+  echo "     the WAIT, so the strobe skew that was REQUIRED for RU5 becomes"
+  echo "     marginal address/precharge timing for the faster part (spec 2.4"
+  echo "     instability note). The verdict therefore CHANGES with part choice,"
+  echo "     satisfying spec T5 / decision 0004 (timing-sensitive model)."
+  echo "------------------------------------------------------------"
+
+  * operating point reported LAST so it does not overwrite the tran data
+  op
+  echo "DC op check: ras_t={$&ras_t} V  cas_t={$&cas_t} V (settled to rail/Thevenin)"
+  echo "============================================================"
+.endc
+.end

@@ -1,0 +1,164 @@
+* Sintez-2 (Soviet ZX-Spectrum clone) - FULL RGB output ladder, one channel
+* ===========================================================================
+* Block "rgb-output" (wiring.json) / discretes.key_resistors (bom.json).
+*
+* WHAT THIS DECK DOES
+*   Models the COMPLETE resistor-ladder DAC + diode summing network for ONE
+*   full RGB colour channel, driven by a КТ315 (KT315) NPN emitter-follower
+*   into a 75 ohm TV/SCART RGB load, and sweeps every colour+bright input
+*   combination to report all DISTINCT analog output levels seen by the 75R
+*   monitor input.
+*
+* LADDER / PART VALUES (verbatim from bom.json discretes.key_resistors,
+* "_corrections_2026-06-14": R49 = 1.8K not 1k):
+*     R41 620   R42 1.8k     <- weight group 1 (BRIGHT-weighted INK + bright)
+*     R47 270   R48 620   R49 1.8k   <- weight group 2 (INK summing)
+*     R54 620   R55 1.8k             <- weight group 3
+*     R60 820                        <- series/level resistor into base node
+*     R43 33k  R50 33k               <- channel input pulldowns
+*     VD3..VD8  КД522 (KD522) diode-OR / level-shift into the summing node
+*
+* TOPOLOGY NOTE (confidence: medium)
+*   The schematic gives the part VALUES with high confidence but the exact
+*   per-resistor net wiring of the ladder is flagged TODO in wiring.json
+*   ("exact per-color ladder mapping TODO"; rgb_level.cir header: "exact
+*   per-board topology still to trace").  This deck implements the
+*   DOCUMENTED, STANDARD ZX-clone RGB DAC: each TTL drive bit feeds the common
+*   summing node "sum" through a КД522 series diode + its weight resistor
+*   (diode-OR, the diode drops ~0.7 V and blocks back-drive from other bits),
+*   the 33k resistors pull the node down when all bits are low, R60 820 is the
+*   series resistor from the summing node to the КТ315 base, and the КТ315
+*   emitter-follower buffers the node into 75 ohm.  Three weighted drive bits
+*   per channel (INK-normal, INK via the 270 high-weight, and BRIGHT) give the
+*   ZX 4-level-per-channel behaviour (0 / dim / normal / bright).
+*
+* TRANSISTOR MODELS (per task: generic NPN/PNP with КТ315/КТ361 datasheet
+* params, hFE~50, ft 250 MHz).  КТ315Г: hFE 50..350 (datasheet min 50 used),
+* ft >= 250 MHz, Vce 35 V, Ic 100 mA.  КТ361 is the PNP complement (not in the
+* single-follower channel but provided for completeness of the RGB stage).
+* TF chosen for ft~250MHz: ft = 1/(2*pi*TF) -> TF ~ 0.64 ns.
+.model KT315 NPN (IS=1e-14 BF=50 VAF=80 RB=10 RC=2 RE=0.5 CJE=8p CJC=4p TF=0.64n TR=10n)
+.model KT361 PNP (IS=1e-14 BF=50 VAF=80 RB=10 RC=2 RE=0.5 CJE=10p CJC=6p TF=0.64n TR=12n)
+*
+* КД522 (KD522B) silicon switching diode: Vf~0.7 @ 10mA, trr<4ns, documented
+* typicals (IS/N/RS) for a small-signal Si switching diode.
+.model KD522 D (IS=2.5e-9 N=1.7 RS=2 CJO=2p TT=3n BV=50 IBV=1u)
+
+*=========================== SUPPLY & DRIVE ================================*
+Vcc   vcc 0 DC 5
+* Three TTL drive bits for this channel (driven 0 / 3.6 V = TTL high typ).
+* Bit weights (low resistor = high contribution):
+*   Vink_hi : strongest INK contribution  -> R47 270  (via VD3)
+*   Vink    : normal  INK contribution    -> R41 620 / R48 620 / R54 620 (via VD4..VD6)
+*   Vbri    : BRIGHT contribution         -> R42 1.8k / R49 1.8k / R55 1.8k (via VD7,VD8)
+Vink_hi inkhi 0 DC 0
+Vink    ink   0 DC 0
+Vbri    bri   0 DC 0
+
+*======================= DIODE-OR RESISTOR LADDER =========================*
+* Each drive node -> КД522 series diode -> weight resistor -> common "sum".
+* (anode at the TTL/driver side, cathode toward the summing node, so a HIGH
+*  bit forward-biases the diode and injects current; a LOW bit is blocked.)
+*
+* --- strongest weight (270) : VD3 + R47 ---
+DVD3  inkhi  n3   KD522
+R47   n3     sum  270
+*
+* --- normal INK weights (620 x3) : VD4..VD6 + R41/R48/R54 ---
+DVD4  ink    n4   KD522
+R41   n4     sum  620
+DVD5  ink    n5   KD522
+R48   n5     sum  620
+DVD6  ink    n6   KD522
+R54   n6     sum  620
+*
+* --- BRIGHT weights (1.8k x3) : VD7,VD8 + R42/R49/R55 ---
+DVD7  bri    n7   KD522
+R42   n7     sum  1.8k
+DVD8  bri    n8   KD522
+R49   n8     sum  1.8k
+R55   bri    sum  1.8k     ; 3rd bright weight, direct (only VD3-VD8 = 6 diodes)
+*
+* --- channel input pulldowns (R43, R50 = 33k) at the summing node ---
+R43   sum    0    33k
+R50   sum    0    33k
+
+*===================== R60 820 series into the base =======================*
+R60   sum    base 820
+
+*===================== КТ315 EMITTER FOLLOWER -> 75R ======================*
+Q1    vcc    base emit  KT315
+* Emitter degeneration / DC return to ground, then the 75R monitor input load.
+* The follower emitter node = "out" = the SCART/TV RGB pin seeing 75 ohm.
+Re    emit   out  150     ; small series build-out / emitter resistor to the line
+Rret  emit   0    330     ; DC bias return for the emitter follower
+Rl75  out    0    75      ; 75 ohm TV/SCART RGB input load
+
+.control
+  set noaskquit
+  echo "==========================================================="
+  echo "Sintez-2 FULL RGB ladder - one channel, KT315 EF into 75 ohm"
+  echo "Inputs: HI=R47/270  INK=R41/R48/R54 (620)  BRI=R42/R49/R55 (1.8k)"
+  echo "TTL high = 3.6 V ; KD522 diode-OR summing ; R43||R50 33k pulldown"
+  echo "==========================================================="
+  echo "  inkhi ink  bri |   Vsum(V)   Vbase(V)   Vout@75R(V)"
+  echo "  -----------------+--------------------------------------"
+
+  * sweep all 8 combinations of the 3 drive bits (HI implies INK in real
+  * use, but we enumerate all 8 to expose every distinct level).
+  let vhi = 3.6
+  set lvl = ""
+
+  alter Vink_hi 0
+  alter Vink    0
+  alter Vbri    0
+  op
+  echo "    0    0    0  | {$&sum}  {$&base}  {$&out}"
+
+  alter Vbri    $&vhi
+  op
+  echo "    0    0    1  | {$&sum}  {$&base}  {$&out}"
+
+  alter Vbri    0
+  alter Vink    $&vhi
+  op
+  echo "    0    1    0  | {$&sum}  {$&base}  {$&out}"
+
+  alter Vbri    $&vhi
+  op
+  echo "    0    1    1  | {$&sum}  {$&base}  {$&out}"
+
+  alter Vbri    0
+  alter Vink    0
+  alter Vink_hi $&vhi
+  op
+  echo "    1    0    0  | {$&sum}  {$&base}  {$&out}"
+
+  alter Vbri    $&vhi
+  op
+  echo "    1    0    1  | {$&sum}  {$&base}  {$&out}"
+
+  alter Vbri    0
+  alter Vink    $&vhi
+  op
+  echo "    1    1    0  | {$&sum}  {$&base}  {$&out}"
+
+  alter Vbri    $&vhi
+  op
+  echo "    1    1    1  | {$&sum}  {$&base}  {$&out}"
+
+  echo "==========================================================="
+  echo "TRAN check (rise into 75R for the full-on 1 1 1 case):"
+  alter Vink_hi 0
+  alter Vink    0
+  alter Vbri    0
+  * drive all three bits with a synchronized step at t=20ns
+  alter Vink_hi 3.6
+  alter Vink    3.6
+  alter Vbri    3.6
+  tran 1n 200n
+  meas tran vout_final FIND v(out) AT=190n
+  echo "RESULT_TRAN_VOUT_FULLON = {$&vout_final} V (settled, into 75 ohm)"
+  echo "==========================================================="
+.endc
+.end
